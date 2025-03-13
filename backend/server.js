@@ -7,6 +7,7 @@ import userRoute from "./route/UserRoute.js";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import leaveRouter from "./route/LeaveRoute.js";
 
 dotenv.config();
 const app = express();
@@ -56,6 +57,7 @@ conn.once("open",()=>{
 })
 
 app.use("/api/employees",userRoute);
+app.use("/api/leave",leaveRouter);
 
 
 app.listen(5000,()=>{

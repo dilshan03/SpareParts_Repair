@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
 
+dotenv.config();
+
 export function createEmployee(req,res){
 
     const data = req.body;
@@ -20,6 +22,33 @@ export function createEmployee(req,res){
             error : "Employee Not created"
         })
     })
+}
+
+export function getEmployee(req,res){
+
+    if(isAdmin(req)){
+        User.find().then((users)=>{
+            res.json(users);
+        }).catch(()=>{
+            res.json({
+                message : "Users not found"
+            })
+        })
+    }
+
+    else if(isEmployee(req)){
+        
+        const email = req.user.email;
+         User.findOne({email : email }).then((userDetail)=>{
+            res.json(userDetail);
+         }).catch(()=>{
+            res.json({
+                message : "User not found"
+            })
+         })
+
+
+    }
 }
 
 export function updateEmployee(req,res){
@@ -88,7 +117,7 @@ export function deleteEmployee(req,res){
     if(isAdmin (req)){
          const id = req.params.id;
 
-         User.deleteOne({id : id }).then(()=>{
+        User.deleteOne({id : id }).then(()=>{
             res.json({
                 message : "Employee deleted successfully"
             })
