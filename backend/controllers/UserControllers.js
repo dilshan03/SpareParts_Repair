@@ -51,23 +51,29 @@ export function getEmployee(req,res){
     }
 }
 
-export function updateEmployee(req,res){
+export async function updateEmployee(req,res){
 
     if(isAdmin(req)){
  
 
         const id = req.params.id;
         const data = req.body;
+        try{
+            await User.updateOne({id : id },data)
+                res.json({
+                    message : "Employee updates successfully"
+                })
+            
+        }
         
-        User.updateOne({id : id },data).then(()=>{
-            res.json({
-                message : "Employee updates successfully"
-            })
-        }).catch(()=>{
+        catch(error){
             res.status(500).json({
                 message : "Employee update is failed"
             })
-        })
+        
+
+        }
+            
 
 
     }
@@ -79,29 +85,37 @@ export function updateEmployee(req,res){
         const data = req.body;
         const email = req.user.email;
 
-        const foundUser = User.findOne({id : id})
+        try{
+            const foundUser = await User.findOne({id : id})
 
-        if(foundUser == null){
-            res.json({
-                message : "Employee not found"
-            })
-            return;
-        }
-        else {
-            if(User.email = email){
-                User.updateOne({id : id },{status : data.status}).then(()=>{
+            if(foundUser == null){
+                res.json({
+                    message : "Employee not found"
+                })
+                return;
+            }
+            else if(foundUser.email == email){
+                await User.updateOne({id : id },{status : data.status})
                     res.json({
                           message : "Updated successfull"
                     })
-                }).catch(()=>{
-                    res.status(500).json({
-                        message : "Update failed"
-                    })
-                })
-              
+
             }
+            else{
+                res.status(403).json({
+                    message : "You are not authorized to do it"
+                })
+            }
+                
         }
-    }
+        catch(error){
+            res.status(500).json({
+                message : "Update failed"
+            })
+        }
+
+    }    
+    
     else {
         res.status(403).json({
             message : "You are not authorized to do it"

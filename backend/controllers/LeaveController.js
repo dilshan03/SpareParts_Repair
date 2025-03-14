@@ -144,7 +144,7 @@ export function rejectLeaveRequest(req, res) {
     );
 }
 
-export function updateLeaveRequest(req,res){
+export async function updateLeaveRequest(req,res){
     if (!req.user) {
         res.status(401).json({ 
            message: "Please log in and try again" 
@@ -156,36 +156,40 @@ export function updateLeaveRequest(req,res){
 
         const leaveId = req.params.id;
         const data = req.body;
-        
 
-        const foundLeave = Leave.findOne({id : leaveId})
+        try {
+            const foundLeave = await Leave.findOne({id : leaveId})
 
-        if (foundLeave == null){
-            res.json({
-                message : "Leave not found"
-            })
-        }
-        else{
-            if(Leave.email = req.user.email){
-                Leave.updateOne({id : leaveId},{$set: { reason: data.reason, startDate: data.startDate, endDate: data.endDate}}).then(()=>{
-                    //console.log(res);
+            if (foundLeave == null){
+                res.json({
+                    message : "Leave not found"
+                })
+            }
+            else if(foundLeave.email == req.user.email){
+                    
+                await Leave.updateOne({id : leaveId},{$set: { reason: data.reason, startDate: data.startDate, endDate: data.endDate}})
+                    
                     res.json({
                         message : "Your leaving details are updated"
                     })
-        
-                }).catch((er)=>{
-                    console.log(er)
-                    res.json({
-                        message : "Leave update is failed"
-                    })
+            
+            }
+            else{
+                res.json({
+                    message : "You are not authorized to update this leave request"
                 })
             }
+            
+        } catch (error) {
+            res.json({
+                message : "Leave update is failed"
+            })
             
         }
     }
     else{
         res.json({
-            message : "You are not authorized to do it"
+            message : "You are not authorized to perform this action"
         })
     }
 }
