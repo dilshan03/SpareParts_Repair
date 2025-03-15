@@ -4,16 +4,28 @@
 import express from "express";
 import mongoose from "mongoose";
 import userRoute from "./route/UserRoute.js";
+import RepairRequestFromRoute from "./routes/RepairRequestFromRoute.js";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import cors from "cors";//RY
 
 dotenv.config();
 const app = express();
 app.use(bodyParser.json());
 
+app.use(cors());//RY
 
 app.use((req,res,next)=>{
+    //############################//RY
+     // Allow public access to login and repair request routes
+     if (
+        req.path === "/api/employees/login" || 
+        req.path.startsWith("/repairRequest")
+    ) {
+        return next();
+    }
+    //##########################
 
     if(req.path == "/api/employees/login"){
         return next();
@@ -55,7 +67,9 @@ conn.once("open",()=>{
     console.log("Connection established")
 })
 
-app.use("/api/employees",userRoute);
+app.use("/api/employees",userRoute); 
+app.use("/repairRequest",RepairRequestFromRoute);//RY
+
 
 
 app.listen(5000,()=>{

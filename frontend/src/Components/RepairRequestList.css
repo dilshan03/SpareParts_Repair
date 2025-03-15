@@ -1,0 +1,23 @@
+.repair-request-list {
+    padding: 20px;
+  }
+  
+  .repair-request-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .repair-request-list li {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  
+  .repair-request-list h2 {
+    margin-top: 0;
+  }
+  
+  .repair-request-list img {
+    margin-top: 10px;
+  }
