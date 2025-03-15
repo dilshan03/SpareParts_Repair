@@ -58,6 +58,7 @@ conn.once("open",()=>{
 
 app.use("/api/employees",userRoute);
 app.use("/api/leave",leaveRouter);
+app.use("/api/quotations", quotationRoutes);
 
 
 app.listen(5000,()=>{
