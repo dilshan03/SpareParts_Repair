@@ -8,6 +8,7 @@ import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import leaveRouter from "./route/LeaveRoute.js";
+import salaryRouter from "./route/SalaryRoute.js";
 
 dotenv.config();
 const app = express();
@@ -58,6 +59,7 @@ conn.once("open",()=>{
 
 app.use("/api/employees",userRoute);
 app.use("/api/leave",leaveRouter);
+app.use("/api/salary",salaryRouter);
 
 
 app.listen(5000,()=>{
