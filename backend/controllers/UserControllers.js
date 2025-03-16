@@ -1,27 +1,72 @@
 import User from "../models/UserModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
-export function createEmployee(req,res){
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASWD,
+    }
+});
 
+export function createEmployee(req, res) {
     const data = req.body;
-
-    data.password = bcrypt.hashSync(data.password,10);
+    const plainPassword = req.body.password;
+    data.password = bcrypt.hashSync(data.password, 10);
 
     const newUser = new User(data);
 
-    newUser.save().then(()=>{
-        res.json({
-            message : "Employee created successfuly"
+    newUser
+        .save()
+        .then(() => {
+
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: data.email,
+                subject: "Welcome to COSMOExports!",
+                html: `
+                    <h2>Welcome ${data.firstName} ${data.lastName}!</h2>
+                    <p>We are excited to have you on board.</p>
+                    <p>Your login details:</p>
+                    <ul>
+                        <li><strong>ID:</strong> ${data.id}</li>
+                        <li><strong>Email:</strong> ${data.email}</li>
+                        <li><strong>Password:</strong> ${plainPassword}</li>
+                    </ul>
+                    <p>Please log in to the system and change your password for security reasons</p>
+                    <p>Best Regards,<br>COSMOExports</p>
+                `
+            };
+
+            
+            transporter.sendMail(mailOptions, (error, info) => {
+
+                if (error) {
+                    
+                    res.status(500).json({
+                        message: "Employee created, but email sending failed"
+
+                    });
+                    return ;
+                }
+                
+                res.status(200).json({
+                    message: "Employee created successfully and email sent"
+                });
+                return ;
+            });
         })
-    }).catch((error)=> {
-        res.status(500).json({
-            error : "Employee Not created"
-        })
-    })
+        .catch(() => {
+
+            res.status(500).json({
+                message: "Employee not created"
+            });
+        });
 }
 
 export function getEmployee(req,res){
@@ -123,6 +168,62 @@ export async function updateEmployee(req,res){
         return;
     }
 
+
+}
+
+export async function updateEmpPassword(req,res){
+    try{
+        if(isEmployee(req)){
+
+            const id = req.params.id;
+            const data = req.body;
+
+            data.password = bcrypt.hashSync(data.password, 10);
+
+            const foundId = await User.findOne({id : id});
+
+            if(!foundId){
+                res.json({
+                    message : "Employee not found"
+                })
+                return;
+            }
+            else if(foundId.email == req.user.email){
+
+                await User.updateOne({id : foundId.id}, {password : data.password});
+                res.json({
+                message : "Password has been updated"
+
+                })
+            }
+            else{
+
+                res.json({
+                    message : "Access denied"
+                })
+
+            }
+
+            
+        }
+        else{
+            res.status(403).json({
+                message : "You can not perform this action"
+            })
+            return;
+        }
+
+
+    }catch{
+        res.status(500).json({
+            message : "Password not updated"
+        })
+
+    }
+    
+   
+
+    
 
 }
 
