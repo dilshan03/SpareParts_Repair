@@ -4,11 +4,15 @@
 import express from "express";
 import mongoose from "mongoose";
 import userRoute from "./route/UserRoute.js";
-import RepairRequestFromRoute from "./routes/RepairRequestFromRoute.js";
+import RepairRequestFromRoute from "./routes/RepairRequestFromRoute.js"; 
+import JobCardRoute from "./routes/JobCardRoutes.js";
+import RepairRoute from "./routes/RepairRoutes.js"; // Import Repair Route
+
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import cors from "cors";//RY
+import cors from "cors";//RY 
+
 
 dotenv.config();
 const app = express();
@@ -20,8 +24,11 @@ app.use((req,res,next)=>{
     //############################//RY
      // Allow public access to login and repair request routes
      if (
-        req.path === "/api/employees/login" || 
-        req.path.startsWith("/repairRequest")
+        req.path === "/api/employees/login" ||
+        req.path.startsWith("/repairRequest") ||
+        req.path.startsWith("/repairs") || // Allow access to repair routes
+        req.path.startsWith("/jobcards") // Allow access to job card routes
+        
     ) {
         return next();
     }
@@ -69,6 +76,8 @@ conn.once("open",()=>{
 
 app.use("/api/employees",userRoute); 
 app.use("/repairRequest",RepairRequestFromRoute);//RY
+app.use("/repairs", RepairRoute); // Repair routes RY
+app.use("/jobcards", JobCardRoute); // Job card routes RY
 
 
 

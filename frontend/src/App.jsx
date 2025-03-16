@@ -3,8 +3,10 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import RepairRequestList from './Components/RepairRequestList'
-import RepairRequestForm from './Components/RepairRequestFrom'
+import RepairRequestList from './Components/RepairRequestList';
+import RepairRequestForm from './Components/RepairRequestFrom';
+import JobCardALL from './Components/JobCardALL';
+import JobCardCreateForm from './Components/JobCardCreateForm';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -39,6 +41,8 @@ function App() {
       </Routes>
       <RepairRequestList/>
       <RepairRequestForm/>
+      <JobCardALL/>
+      <JobCardCreateForm/>
     </BrowserRouter>
     
       
@@ -46,4 +50,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
