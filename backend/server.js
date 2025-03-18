@@ -9,9 +9,13 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import leaveRouter from "./route/LeaveRoute.js";
 import salaryRouter from "./route/SalaryRoute.js";
+import cors from "cors";
 
 dotenv.config();
+
 const app = express();
+
+app.use(cors());
 app.use(bodyParser.json());
 
 
