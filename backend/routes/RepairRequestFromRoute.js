@@ -23,6 +23,14 @@
 
 import express from "express";
 import multer from "multer";
+// import {app} from "../server.js";
+
+const repairRequestRouter = express.Router();
+
+// Multer setup for file upload (stores file in memory buffer)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 import {
   createRepairRequest,
   getAllRepairRequests,
@@ -31,11 +39,6 @@ import {
   deleteRepairRequest,
 } from "../controllers/RepairRequestFormController.js"; // Adjust the path as needed
 
-const repairRequestRouter = express.Router();
-
-// Multer setup for file upload (stores file in memory buffer)
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
 // Routes
 repairRequestRouter.post("/", upload.single("vehiclePhotoR"), createRepairRequest); // Create a repair request

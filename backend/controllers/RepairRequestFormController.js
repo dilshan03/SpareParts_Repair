@@ -40,6 +40,7 @@ export const createRepairRequest = async (req, res) => {
       vehiclePhotoR: req.file
         ? { data: req.file.buffer, contentType: req.file.mimetype }
         : null,
+        
     });
 
     await newRepairRequest.save();
@@ -60,6 +61,19 @@ export const getAllRepairRequests = async (req, res) => {
 };
 
 // Get a repair request by ID
+// export const getRepairRequestById = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const repairRequest = await RepairRequestFormModel.findById(id);
+//     if (!repairRequest) {
+//       return res.status(404).json({ message: "Repair request not found" });
+//     }
+//     res.status(200).json(repairRequest);
+//   } catch (error) {
+//     res.status(500).json({ error: "Error fetching repair request", details: error.message });
+//   }
+// };
+
 export const getRepairRequestById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -67,13 +81,64 @@ export const getRepairRequestById = async (req, res) => {
     if (!repairRequest) {
       return res.status(404).json({ message: "Repair request not found" });
     }
+
+    // Convert image buffer to Base64 if exists
+    if (repairRequest.vehiclePhotoR?.data) {
+      repairRequest.vehiclePhotoR = {
+        data: repairRequest.vehiclePhotoR.data.toString("base64"),
+        contentType: repairRequest.vehiclePhotoR.contentType,
+      };
+    }
+
     res.status(200).json(repairRequest);
   } catch (error) {
     res.status(500).json({ error: "Error fetching repair request", details: error.message });
   }
 };
 
+
 // Update a repair request
+// export const updateRepairRequest = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const updateFields = {};
+
+//     if (req.file) {
+//       updateFields.vehiclePhotoR = { data: req.file.buffer, contentType: req.file.mimetype };
+//     }
+
+//     const fields = [
+//       "customerNameR",
+//       "contactNumberR",
+//       "emailR",
+//       "addressR",
+//       "vehicleRegiNumberR",
+//       "vehicleMakeR",
+//       "vehicleModelR",
+//       "yearOfManufactureR",
+//       "mileageR",
+//       "vehicleIdentiNumberR",
+//       "serviceTypeR",
+//       "descripIssueR",
+//       "prefDateAndTimeR",
+//       "urgencyLevelR",
+//       "paymentMethodR",
+//     ];
+
+//     fields.forEach((field) => {
+//       if (req.body[field]) updateFields[field] = req.body[field];
+//     });
+
+//     const updatedRepairRequest = await RepairRequestFormModel.findByIdAndUpdate(id, updateFields, { new: true });
+//     if (!updatedRepairRequest) {
+//       return res.status(404).json({ message: "Repair request not found" });
+//     }
+//     res.status(200).json(updatedRepairRequest);
+//   } catch (error) {
+//     res.status(500).json({ error: "Error updating repair request", details: error.message });
+//   }
+// };
+
 export const updateRepairRequest = async (req, res) => {
   try {
     const id = req.params.id;
@@ -105,12 +170,19 @@ export const updateRepairRequest = async (req, res) => {
       if (req.body[field]) updateFields[field] = req.body[field];
     });
 
-    const updatedRepairRequest = await RepairRequestFormModel.findByIdAndUpdate(id, updateFields, { new: true });
+    const updatedRepairRequest = await RepairRequestFormModel.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true }
+    );
+
     if (!updatedRepairRequest) {
       return res.status(404).json({ message: "Repair request not found" });
     }
+
     res.status(200).json(updatedRepairRequest);
   } catch (error) {
+    console.error("Error updating repair request:", error);
     res.status(500).json({ error: "Error updating repair request", details: error.message });
   }
 };

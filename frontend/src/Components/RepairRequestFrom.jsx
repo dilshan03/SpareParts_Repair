@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import "./RepairRequestForm.css";
+import { ToastContainer, toast } from "react-toastify";//for notifycation
+import "react-toastify/dist/ReactToastify.css";//for notifycation
 
 function RepairRequestForm() {
   const [currentStep, setCurrentStep] = useState(1); // Track the current step
@@ -28,6 +30,7 @@ function RepairRequestForm() {
         "customerNameR",
         "contactNumberR",
         "emailR",
+        "addressR",
       ]);
     } else if (currentStep === 2) {
       isValid = await trigger([
@@ -35,8 +38,20 @@ function RepairRequestForm() {
         "vehicleMakeR",
         "vehicleModelR",
         "yearOfManufactureR",
+        "mileageR",
+        "vehicleIdentiNumberR",
       ]);
     }
+    // else if (currentStep === 2) {
+    //   isValid = await trigger([
+    //     "vehiclePhotoR",
+    //     "serviceTypeR",
+    //     "descripIssueR",
+    //     "prefDateAndTimeR",
+    //     "urgencyLevelR",
+    //     "paymentMethodR",
+    //   ]);
+    // }
 
     if (isValid) {
       setCurrentStep(currentStep + 1);
@@ -50,30 +65,67 @@ function RepairRequestForm() {
     }
   };
 
-  // Handle Form Submission
-  const onSubmit = (data) => {
-    const formData = new FormData();
-    for (const key in data) {
-      if (key === "vehiclePhotoR") {
-        formData.append(key, data[key][0]); // Handle file upload
-      } else {
-        formData.append(key, data[key]);
-      }
-    }
+  // // Handle Form Submission
+  // const onSubmit = (data) => {
+  //   const formData = new FormData();
+  //   for (const key in data) {
+  //     if (key === "vehiclePhotoR") {
+  //       formData.append(key, data[key][0]); // Handle file upload
+  //     } else {
+  //       formData.append(key, data[key]);
+  //     }
+  //   }
 
-    axios
-      .post("http://localhost:5000/repairRequest/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((result) => {
-        console.log(result);
-        navigate("/");
-        alert("Successfully submitted!");
-      })
-      .catch((err) => console.log(err));
-  };
+  //   axios
+  //     .post("http://localhost:5000/repairRequest/", formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     })
+  //     .then((result) => {
+  //       console.log(result);
+  //       navigate("/");
+  //       alert("Successfully submitted!");
+  //     })
+  //     .catch((err) => console.log(err));
+  // };
+
+    // Handle Form Submission
+    const onSubmit = (data) => {
+      const formData = new FormData();
+      for (const key in data) {
+        if (key === "vehiclePhotoR") {
+          formData.append(key, data[key][0]); // Handle file upload
+        } else {
+          formData.append(key, data[key]);
+        }
+      }
+  
+      axios
+        .post("http://localhost:5000/repairRequest/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((result) => {
+          console.log(result);
+          // Navigate to another page or perform another action
+          navigate("/");
+          // Show success notification
+          toast.success("Repair request submitted successfully!", {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+          // Show error notification
+          toast.error("Failed to submit repair request!", {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+        });
+    };
 
   return (
     <div className="container">
@@ -193,8 +245,15 @@ function RepairRequestForm() {
                     className="form-control"
                     id="addressR"
                     placeholder="Enter your address"
-                    {...register("addressR")}
+                    {...register("addressR", { required: "Your address is required" })}
                   />
+                 <ErrorMessage
+                        errors={errors}
+                        name="addressR"
+                        render={({ message }) => (
+                          <p className="error-message" style={{ textAlign: "left" }}>{message}</p>
+                        )}
+                      />
                 </div>
 
                 <button
@@ -235,7 +294,8 @@ function RepairRequestForm() {
                       />
                     </div>
                   </div>
-                  <div className="col-md-6">
+
+                  {/* <div className="col-md-6">
                     <div className="form-group">
                       <label htmlFor="vehicleMakeR" style={{ textAlign: "left" }}>
                         Vehicle Make
@@ -257,11 +317,48 @@ function RepairRequestForm() {
                         )}
                       />
                     </div>
+                  </div> */}
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label htmlFor="vehicleMakeR" style={{ textAlign: "left" }}>
+                        Vehicle Make (Sri Lanka)
+                      </label>
+                      <select
+                        className="form-control"
+                        id="vehicleMakeR"
+                        {...register("vehicleMakeR", {
+                          required: "Vehicle Make is required",
+                        })}
+                      >
+                        <option value="">Select a vehicle make</option>
+                        <option value="Toyota">Toyota</option>
+                        <option value="Honda">Honda</option>
+                        <option value="Suzuki">Suzuki</option>
+                        <option value="Nissan">Nissan</option>
+                        <option value="Mitsubishi">Mitsubishi</option>
+                        <option value="Hyundai">Hyundai</option>
+                        <option value="Isuzu">Isuzu</option>
+                        <option value="BMW">BMW</option>
+                        <option value="Mercedes-Benz">Mercedes-Benz</option>
+                        <option value="Audi">Audi</option>
+                        <option value="Volkswagen">Volkswagen</option>
+                        {/* Add more vehicle makes based on your need */}
+                      </select>
+
+                      <ErrorMessage
+                        errors={errors}
+                        name="vehicleMakeR"
+                        render={({ message }) => (
+                          <p className="error-message" style={{ textAlign: "left" }}>{message}</p>
+                        )}
+                      />
+                    </div>
                   </div>
+
                 </div>
 
                 <div className="row">
-                  <div className="col-md-6">
+                  {/* <div className="col-md-6">
                     <div className="form-group">
                       <label htmlFor="vehicleModelR" style={{ textAlign: "left" }}>
                         Vehicle Model
@@ -283,8 +380,108 @@ function RepairRequestForm() {
                         )}
                       />
                     </div>
-                  </div>
+                  </div> */}
 
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label htmlFor="vehicleModelR" style={{ textAlign: "left" }}>
+                        Vehicle Model
+                      </label>
+                      <select
+                        className="form-control"
+                        id="vehicleModelR"
+                        {...register("vehicleModelR", {
+                          required: "Vehicle Model is required",
+                        })}
+                      >
+                        <option value="">Select a vehicle model</option>
+
+                        {/* Toyota Models */}
+                        <option value="Toyota Corolla">Toyota Corolla</option>
+                        <option value="Toyota Camry">Toyota Camry</option>
+                        <option value="Toyota Hilux">Toyota Hilux</option>
+                        <option value="Toyota RAV4">Toyota RAV4</option>
+                        <option value="Toyota Land Cruiser">Toyota Land Cruiser</option>
+
+                        {/* Honda Models */}
+                        <option value="Honda Civic">Honda Civic</option>
+                        <option value="Honda Accord">Honda Accord</option>
+                        <option value="Honda CR-V">Honda CR-V</option>
+                        <option value="Honda Jazz">Honda Jazz</option>
+                        <option value="Honda HR-V">Honda HR-V</option>
+
+                        {/* Suzuki Models */}
+                        <option value="Suzuki Swift">Suzuki Swift</option>
+                        <option value="Suzuki Alto">Suzuki Alto</option>
+                        <option value="Suzuki Vitara">Suzuki Vitara</option>
+                        <option value="Suzuki Baleno">Suzuki Baleno</option>
+                        <option value="Suzuki Wagon R">Suzuki Wagon R</option>
+
+                        {/* Nissan Models */}
+                        <option value="Nissan Altima">Nissan Altima</option>
+                        <option value="Nissan Sentra">Nissan Sentra</option>
+                        <option value="Nissan X-Trail">Nissan X-Trail</option>
+                        <option value="Nissan Leaf">Nissan Leaf</option>
+                        <option value="Nissan Pathfinder">Nissan Pathfinder</option>
+
+                        {/* Mitsubishi Models */}
+                        <option value="Mitsubishi Outlander">Mitsubishi Outlander</option>
+                        <option value="Mitsubishi Lancer">Mitsubishi Lancer</option>
+                        <option value="Mitsubishi ASX">Mitsubishi ASX</option>
+                        <option value="Mitsubishi Pajero">Mitsubishi Pajero</option>
+                        <option value="Mitsubishi Triton">Mitsubishi Triton</option>
+
+                        {/* Hyundai Models */}
+                        <option value="Hyundai Elantra">Hyundai Elantra</option>
+                        <option value="Hyundai Tucson">Hyundai Tucson</option>
+                        <option value="Hyundai Santa Fe">Hyundai Santa Fe</option>
+                        <option value="Hyundai Kona">Hyundai Kona</option>
+                        <option value="Hyundai Sonata">Hyundai Sonata</option>
+
+                        {/* Isuzu Models */}
+                        <option value="Isuzu D-Max">Isuzu D-Max</option>
+                        <option value="Isuzu MU-X">Isuzu MU-X</option>
+                        <option value="Isuzu N-Series">Isuzu N-Series</option>
+                        <option value="Isuzu Elf">Isuzu Elf</option>
+
+                        {/* BMW Models */}
+                        <option value="BMW 3 Series">BMW 3 Series</option>
+                        <option value="BMW 5 Series">BMW 5 Series</option>
+                        <option value="BMW X5">BMW X5</option>
+                        <option value="BMW X3">BMW X3</option>
+                        <option value="BMW 7 Series">BMW 7 Series</option>
+
+                        {/* Mercedes-Benz Models */}
+                        <option value="Mercedes-Benz C-Class">Mercedes-Benz C-Class</option>
+                        <option value="Mercedes-Benz E-Class">Mercedes-Benz E-Class</option>
+                        <option value="Mercedes-Benz S-Class">Mercedes-Benz S-Class</option>
+                        <option value="Mercedes-Benz GLC">Mercedes-Benz GLC</option>
+                        <option value="Mercedes-Benz GLE">Mercedes-Benz GLE</option>
+
+                        {/* Audi Models */}
+                        <option value="Audi A3">Audi A3</option>
+                        <option value="Audi A4">Audi A4</option>
+                        <option value="Audi A6">Audi A6</option>
+                        <option value="Audi Q5">Audi Q5</option>
+                        <option value="Audi Q7">Audi Q7</option>
+
+                        {/* Volkswagen Models */}
+                        <option value="Volkswagen Golf">Volkswagen Golf</option>
+                        <option value="Volkswagen Passat">Volkswagen Passat</option>
+                        <option value="Volkswagen Polo">Volkswagen Polo</option>
+                        <option value="Volkswagen Tiguan">Volkswagen Tiguan</option>
+                        <option value="Volkswagen Jetta">Volkswagen Jetta</option>
+                      </select>
+
+                      <ErrorMessage
+                        errors={errors}
+                        name="vehicleModelR"
+                        render={({ message }) => (
+                          <p className="error-message" style={{ textAlign: "left" }}>{message}</p>
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   {/* <div className="col-md-6">
                     <div className="form-group">
@@ -401,8 +598,15 @@ function RepairRequestForm() {
                         className="form-control"
                         id="vehicleIdentiNumberR"
                         placeholder="Enter VIN"
-                        {...register("vehicleIdentiNumberR")}
-                      />
+                        {...register("vehicleIdentiNumberR", { required: "Your Vehicle ID number is required" })}
+                        />
+                       <ErrorMessage
+                              errors={errors}
+                              name="vehicleIdentiNumberR"
+                              render={({ message }) => (
+                                <p className="error-message" style={{ textAlign: "left" }}>{message}</p>
+                              )}
+                            />
                     </div>
                   </div>
                 </div>
@@ -479,34 +683,34 @@ function RepairRequestForm() {
                   </div> */}
                   
                   <div className="col-md-6">
-  <div className="form-group">
-    <label htmlFor="serviceTypeR" style={{ textAlign: "left" }}>Service Type</label>
-    <select
-      className="form-control"
-      id="serviceTypeR"
-      {...register("serviceTypeR", {
-        required: "Service Type is required",
-      })}
-    >
-      <option value="">Select a service type</option>
-      <option value="Vehicle Repair">Vehicle Repair</option>
-      <option value="Vehicle Restoration">Vehicle Restoration</option>
-      <option value="General Service">General Service</option>
-      <option value="Oil Change">Oil Change</option>
-      <option value="Tire Replacement">Tire Replacement</option>
-      <option value="Battery Replacement">Battery Replacement</option>
-      <option value="Brake Inspection">Brake Inspection</option>
-    </select>
+                    <div className="form-group">
+                      <label htmlFor="serviceTypeR" style={{ textAlign: "left" }}>Service Type</label>
+                      <select
+                        className="form-control"
+                        id="serviceTypeR"
+                        {...register("serviceTypeR", {
+                          required: "Service Type is required",
+                        })}
+                      >
+                        <option value="">Select a service type</option>
+                        <option value="Vehicle Repair">Vehicle Repair</option>
+                        <option value="Vehicle Restoration">Vehicle Restoration</option>
+                        <option value="General Service">General Service</option>
+                        <option value="Oil Change">Oil Change</option>
+                        <option value="Tire Replacement">Tire Replacement</option>
+                        <option value="Battery Replacement">Battery Replacement</option>
+                        <option value="Brake Inspection">Brake Inspection</option>
+                      </select>
 
-    <ErrorMessage
-      errors={errors}
-      name="serviceTypeR"
-      render={({ message }) => (
-        <p className="error-message" style={{ textAlign: "left" }}>{message}</p>
-      )}
-    />
-  </div>
-</div>
+                      <ErrorMessage
+                        errors={errors}
+                        name="serviceTypeR"
+                        render={({ message }) => (
+                          <p className="error-message" style={{ textAlign: "left" }}>{message}</p>
+                        )}
+                      />
+                    </div>
+                  </div>
 
 
 
@@ -618,7 +822,9 @@ function RepairRequestForm() {
               </div>
             )}
           </form>
+          <ToastContainer />
         </fieldset>
+        <ToastContainer />
       </div>
     </div>
   );

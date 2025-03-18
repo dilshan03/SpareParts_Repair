@@ -1,83 +1,13 @@
-// import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
-// import './RepairRequestList.css';
-
-// const RepairRequestList = () => {
-//   const [repairRequests, setRepairRequests] = useState([]); // State to store repair requests
-//   const [loading, setLoading] = useState(true); // State to handle loading state
-//   const [error, setError] = useState(null); // State to handle errors
-
-//   // Fetch repair requests from the backend
-//   useEffect(() => {
-//     const fetchRepairRequests = async () => {
-//       try {
-//         const response = await axios.get('http://localhost:5000/repairRequest/'); // Fetch data
-//         setRepairRequests(response.data); // Update state with fetched data
-//         setLoading(false); // Set loading to false
-//       } catch (err) {
-//         setError(err.message); // Set error message
-//         setLoading(false); // Set loading to false
-//       }
-//     };
-
-//     fetchRepairRequests(); // Call the function
-//   }, []); // Empty dependency array ensures this runs only once
-
-//   // Display loading state
-//   if (loading) {
-//     return <div>Loading...</div>;
-//   }
-
-//   // Display error message
-//   if (error) {
-//     return <div>Error: {error}</div>;
-//   }
-
-//   return (
-//     <div>
-//       <h1>Repair Requests</h1>
-//       {repairRequests.length === 0 ? (
-//         <p>No repair requests found.</p>
-//       ) : (
-//         <ul>
-//           {repairRequests.map((request) => (
-//             <li key={request._id}>
-//               <h2>{request.customerNameR}</h2>
-//               <p><strong>Contact Number:</strong> {request.contactNumberR}</p>
-//               <p><strong>Email:</strong> {request.emailR}</p>
-//               <p><strong>Address:</strong> {request.addressR}</p>
-//               <p><strong>Vehicle Registration Number:</strong> {request.vehicleRegiNumberR}</p>
-//               <p><strong>Vehicle Make:</strong> {request.vehicleMakeR}</p>
-//               <p><strong>Vehicle Model:</strong> {request.vehicleModelR}</p>
-//               <p><strong>Year of Manufacture:</strong> {request.yearOfManufactureR}</p>
-//               <p><strong>Mileage:</strong> {request.mileageR}</p>
-//               <p><strong>Vehicle Identification Number:</strong> {request.vehicleIdentiNumberR}</p>
-//               <p><strong>Service Type:</strong> {request.serviceTypeR}</p>
-//               <p><strong>Description of Issue:</strong> {request.descripIssueR}</p>
-//               <p><strong>Preferred Date and Time:</strong> {new Date(request.prefDateAndTimeR).toLocaleString()}</p>
-//               <p><strong>Urgency Level:</strong> {request.urgencyLevelR}</p>
-//               <p><strong>Payment Method:</strong> {request.paymentMethodR}</p>
-//               {request.vehiclePhotoR && (
-//                 <img
-//                   src={`data:${request.vehiclePhotoR.contentType};base64,${request.vehiclePhotoR.data.toString('base64')}`}
-//                   alt="Vehicle"
-//                   style={{ maxWidth: '200px' }}
-//                 />
-//               )}
-//               <hr />
-//             </li>
-//           ))}
-//         </ul>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default RepairRequestList;
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Table, Pagination, Form, FormControl, Button, Spinner } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";//for notifycation
+import "react-toastify/dist/ReactToastify.css";//for notifycation
+import Swal from "sweetalert2";//for alert delete
+import jsPDF from "jspdf";//dowunload pdf
+import html2canvas from "html2canvas";//dowunload pdf
 
 const RepairRequestList = () => {
   const [repairRequests, setRepairRequests] = useState([]);
@@ -101,6 +31,16 @@ const RepairRequestList = () => {
 
     fetchRepairRequests();
   }, []);
+  
+  //convert binary
+  const arrayBufferToBase64 = (arrayBuffer) => {
+    let binary = "";
+    let bytes = new Uint8Array(arrayBuffer || []);
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  };
 
   // Search logic
   const filteredRequests = repairRequests.filter((request) => {
@@ -125,6 +65,87 @@ const RepairRequestList = () => {
     return acc;
   }, {});
 
+   // Count repair requests by vehicle make
+   const vehicleMakeCounts = repairRequests.reduce((acc, request) => {
+    acc[request.vehicleMakeR] = (acc[request.vehicleMakeR] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Count repair requests by urgency level
+  const urgencyLevelCounts = repairRequests.reduce((acc, request) => {
+    acc[request.urgencyLevelR] = (acc[request.urgencyLevelR] || 0) + 1;
+    return acc;
+  }, {});
+
+  // //delete function
+  // const handleDelete = (id) => {
+  //   axios
+  //     .delete(`http://localhost:5000/repairRequest/${id}`)
+  //     .then((res) => {
+  //       setRepairRequests(repairRequests.filter((request) => request._id !== id));
+  //       toast.success("Repair request deleted successfully!", {
+  //         position: "top-right",
+  //         autoClose: 3000, // Closes after 3 seconds
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //       toast.error("Failed to delete repair request!", {
+  //         position: "top-right",
+  //         autoClose: 3000,
+  //       });
+  //     });
+  // };
+    // Delete function with confirmation
+    const handleDelete = (id) => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .delete(`http://localhost:5000/repairRequest/${id}`)
+            .then((res) => {
+              setRepairRequests(repairRequests.filter((request) => request._id !== id));
+              toast.success("Repair request deleted successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            })
+            .catch((err) => {
+              console.error(err);
+              toast.error("Failed to delete repair request!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            });
+        } else {
+          toast.warning("Deletion canceled!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+      });
+    };
+
+      // Function to download PDF
+  const downloadPDF = () => {
+    const input = document.getElementById("repair-requests-table"); // Target the table element
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4"); // A4 size page
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("repair-requests.pdf"); // Save the PDF
+    });
+  };
+  
   if (loading) {
     return (
       <div className="text-center mt-5">
@@ -141,28 +162,81 @@ const RepairRequestList = () => {
 
   return (
     <div className="coniner mt-4">
-      <h1 className="text-center mb-4">Repair Requests</h1>
+      <ToastContainer />
+      <h1 className="text-center mb-4" style={{ textAlign: "center", fontSize: "2.5rem", fontWeight: "bold", color: "#333", marginBottom: "1.5rem" }}>
+  Repair Requests
+</h1>
+
+     {/* Download PDF Button */}
+     <div className="text-end mb-3">
+        <Button variant="success" onClick={downloadPDF}>
+          <i className="bi bi-download"></i> Download PDF
+        </Button>
+      </div>
 
       {/* Display Counts */}
       <div className="mb-4">
         <div className="row">
-          <div className="col-md-6" style={{
-                backgroundColor: "rgb(94, 175, 219)",
-                border: "1px solid black",  // Correct format
-                padding: "20px",
-                borderRadius: "10px",
-                fontSize:"18px"
-              }}
+          <div className="col-md-4" 
               >
-             <p><strong>Total Repair Requests:</strong>
-             <br></br> {repairRequests.length}</p>
-          </div>
-          <div className="col-md-6"  style={{
-                backgroundColor: "rgb(94, 175, 219)",
+            <div style={{
+                backgroundColor: "#D3D3D3",
                 border: "1px solid black",  // Correct format
                 padding: "20px",
                 borderRadius: "10px",
-                fontSize:"18px"
+                fontSize:"18px",
+                margin:"10px"
+              }}>
+                <p><strong>Total Repair Requests:</strong>
+                <br></br> {repairRequests.length}</p>
+            </div>
+             
+            <div  style={{
+                  backgroundColor: "#EA6A47",
+                  // color:"white",
+                  border: "1px solid black",  // Correct format
+                  padding: "20px",
+                  borderRadius: "10px",
+                  fontSize:"18px",
+                  margin:"10px"
+                }}>
+                  <p><strong>Repair Requests by Urgency Level:</strong></p>
+                  <ul>
+                    {Object.entries(urgencyLevelCounts).map(([urgency, count]) => (
+                      <li key={urgency} style={{ textAlign: "left" }}>
+                        <strong>{urgency}</strong>: {count} requests
+                      </li>
+                    ))}
+                  </ul>
+            </div>
+             
+          </div>
+          <div className="col-md-4" style={{
+                backgroundColor: "#488A99",
+                border: "1px solid black",
+                padding: "20px",
+                borderRadius: "10px",
+                fontSize: "18px",
+                margin:"10px",
+                width:"30%"
+              }}>
+            <p><strong>Repair Requests by Vehicle Make:</strong></p>
+            <ul>
+              {Object.entries(vehicleMakeCounts).map(([make, count]) => (
+                <li key={make} style={{ textAlign: "left" }}>
+                  <strong>{make}</strong>: {count} requests
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="col-md-4"  style={{
+                backgroundColor: "#DBAE58",
+                border: "1px solid black",  // Correct format
+                padding: "20px",
+                borderRadius: "10px",
+                fontSize:"18px",
+                margin:"10px",
+                width:"33%"
               }}>
              <p><strong>Repair Requests by Service Type:</strong></p>
             <ul>
@@ -191,7 +265,7 @@ const RepairRequestList = () => {
 
       {/* Table */}
       <div className="table-responsive" style={{ maxHeight: "600px", overflowY: "auto", textAlign: "left" }}>
-        <Table striped bordered hover className="table-sm" style={{ width: "1200px" }}>
+        <Table   id="repair-requests-table" striped bordered hover className="table-sm" style={{ width: "1200px" }}>
           <thead className="sticky-top bg-light">
             <tr>
               <th>No</th>
@@ -211,14 +285,20 @@ const RepairRequestList = () => {
 
                 {/* Vehicle Photo */}
                 <td>
-                  {request.vehiclePhotoR && (
-                    <img
-                      src={`data:${request.vehiclePhotoR.contentType};base64,${request.vehiclePhotoR.data}`}
-                      alt="Vehicle"
-                      className="img-thumbnail"
-                      style={{ maxWidth: "100px" }}
-                    />
-                  )}
+                 
+            <img
+              src={
+                request.vehiclePhotoR?.data?.data
+                  ? `data:${request.vehiclePhotoR.contentType};base64,${arrayBufferToBase64(
+                    request.vehiclePhotoR.data.data
+                    )}`
+                  : "https://via.placeholder.com/300x200"
+              }
+              alt={request.vehicleMakeR || "vehicle"}
+              style={{ width: "100%", height: "200px", objectFit: "cover" }}
+            />
+
+
                 </td>
 
                 {/* Customer Details */}
@@ -252,8 +332,14 @@ const RepairRequestList = () => {
 
                 {/* Action */}
                 <td>
-                  <Button variant="primary" size="sm" className="me-2">Edit</Button>
-                  <Button variant="danger" size="sm">Delete</Button>
+                  {/* <Button variant="primary" size="sm" className="me-2">Edit</Button> */}
+                  <Link to={`/repairRequest/${request._id}`} className="btn btn-success btn-sm">
+                    Update
+                  </Link>
+                  {/* <Button variant="danger" size="sm">Delete</Button> */}
+                  <button className="btn btn-dark btn-sm" onClick={() => handleDelete(request._id)}>
+                  <i className="bi bi-trash3-fill"></i> Delete
+                  </button>
                 </td>
               </tr>
             ))}

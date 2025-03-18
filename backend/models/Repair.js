@@ -6,7 +6,7 @@ const repairSchema = new mongoose.Schema({
   ownerName: { type: String, required: true },
   issueDescription: [{ type: String, required: true }], // Array of issues
   quotationId: { type: mongoose.Schema.Types.ObjectId, ref: "Quotation" }, // Reference to Quotation
-  assignedMechanic: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Reference to User (Mechanic)
+  assignedMechanic: { type: mongoose.Schema.Types.ObjectId, ref: "employees" }, // Reference to User (Mechanic)
   status: { type: String, enum: ["Pending", "In Progress", "Completed"], default: "Pending" },
   createdAt: { type: Date, default: Date.now }
 });

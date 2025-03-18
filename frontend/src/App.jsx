@@ -5,8 +5,11 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RepairRequestList from './Components/RepairRequestList';
 import RepairRequestForm from './Components/RepairRequestFrom';
-import JobCardALL from './Components/JobCardALL';
-import JobCardCreateForm from './Components/JobCardCreateForm';
+import RepairRequestFromUpdate from './Components/RepairRequestFromUpdate';
+// import JobCardALL from './Components/JobCardALL';
+// import JobCardCreateForm from './Components/JobCardCreateForm';
+// import RepairListAll from './Components/RepairListAll';
+// import JobCardUpdateMechanic from './Components/JobCardUpdateMechanic';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -38,11 +41,15 @@ function App() {
       <Routes>
         <Route path="/" element={<RepairRequestForm />} />
         <Route path="/success" element={<h1>Form Submitted Successfully</h1>} />
+        <Route path='/repairRequest/:id' element={<RepairRequestFromUpdate/>} />
       </Routes>
       <RepairRequestList/>
-      <RepairRequestForm/>
-      <JobCardALL/>
-      <JobCardCreateForm/>
+      <RepairRequestForm />
+      {/* <JobCardALL/> */}
+      {/* <JobCardCreateForm/> */}
+      {/* <RepairListAll/> */}
+      {/* <JobCardUpdateMechanic/> */}
+      {/* <RepairRequestFromUpdate/> */}
     </BrowserRouter>
     
       
