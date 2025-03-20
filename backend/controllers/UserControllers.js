@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
 
+dotenv.config();
+
 export function createEmployee(req,res){
 
     const data = req.body;
@@ -22,23 +24,56 @@ export function createEmployee(req,res){
     })
 }
 
-export function updateEmployee(req,res){
+export function getEmployee(req,res){
+
+    if(isAdmin(req)){
+        User.find().then((users)=>{
+            res.json(users);
+        }).catch(()=>{
+            res.json({
+                message : "Users not found"
+            })
+        })
+    }
+
+    else if(isEmployee(req)){
+        
+        const email = req.user.email;
+         User.findOne({email : email }).then((userDetail)=>{
+            res.json(userDetail);
+         }).catch(()=>{
+            res.json({
+                message : "User not found"
+            })
+         })
+
+
+    }
+}
+
+export async function updateEmployee(req,res){
 
     if(isAdmin(req)){
  
 
         const id = req.params.id;
         const data = req.body;
+        try{
+            await User.updateOne({id : id },data)
+                res.json({
+                    message : "Employee updates successfully"
+                })
+            
+        }
         
-        User.updateOne({id : id },data).then(()=>{
-            res.json({
-                message : "Employee updates successfully"
-            })
-        }).catch(()=>{
+        catch(error){
             res.status(500).json({
                 message : "Employee update is failed"
             })
-        })
+        
+
+        }
+            
 
 
     }
@@ -50,29 +85,37 @@ export function updateEmployee(req,res){
         const data = req.body;
         const email = req.user.email;
 
-        const foundUser = User.findOne({id : id})
+        try{
+            const foundUser = await User.findOne({id : id})
 
-        if(foundUser == null){
-            res.json({
-                message : "Employee not found"
-            })
-            return;
-        }
-        else {
-            if(User.email = email){
-                User.updateOne({id : id },{status : data.status}).then(()=>{
+            if(foundUser == null){
+                res.json({
+                    message : "Employee not found"
+                })
+                return;
+            }
+            else if(foundUser.email == email){
+                await User.updateOne({id : id },{status : data.status})
                     res.json({
                           message : "Updated successfull"
                     })
-                }).catch(()=>{
-                    res.status(500).json({
-                        message : "Update failed"
-                    })
-                })
-              
+
             }
+            else{
+                res.status(403).json({
+                    message : "You are not authorized to do it"
+                })
+            }
+                
         }
-    }
+        catch(error){
+            res.status(500).json({
+                message : "Update failed"
+            })
+        }
+
+    }    
+    
     else {
         res.status(403).json({
             message : "You are not authorized to do it"
@@ -88,7 +131,7 @@ export function deleteEmployee(req,res){
     if(isAdmin (req)){
          const id = req.params.id;
 
-         User.deleteOne({id : id }).then(()=>{
+        User.deleteOne({id : id }).then(()=>{
             res.json({
                 message : "Employee deleted successfully"
             })

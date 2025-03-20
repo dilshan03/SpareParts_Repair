@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 
 const leaveSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     email: {
         type: String,
         required: true
     },
     name: {
-        type: String,
-        required: true
-    },
-    leaveType: {
         type: String,
         required: true
     },
