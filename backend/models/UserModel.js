@@ -64,7 +64,14 @@ const userSchema = new Schema({
         type: String,
         required: true,
         default: "Available"
-    }
+    },
+
+    profilepicture: {
+        type : String,
+        required : true,
+        default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKaiKiPcLJj7ufrj6M2KaPwyCT4lDSFA5oog&s"
+
+    },
 });
 
 const User = mongoose.model("employees", userSchema);

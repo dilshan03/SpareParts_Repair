@@ -1,0 +1,86 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
+export default function Login() {
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        console.log(email, password);
+
+        axios.post("http://localhost:5000/api/employees/login", {
+            email: email,
+            password: password
+        })
+        .then((res) => {
+            console.log(res);
+            toast.success("Login Success");
+            const user = res.data.user;
+
+            // Store token and set it for future requests
+            localStorage.setItem("token", res.data.token);
+            ;
+
+            if (user.role == "Admin") {
+                navigate("/admin/");
+            } else {
+                navigate("/employeeProfile");
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            setError(error.response?.data?.error || "Something went wrong");
+            toast.error(error.response?.data?.error || "Login failed");
+        });
+    }
+
+    return (
+        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            <div className="bg-white p-8 shadow-lg rounded-lg max-w-sm w-full">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Login</h2>
+
+                {/* ✅ Display error message */}
+                {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block text-gray-600 text-sm">Email</label>
+                        <input
+                            type="email"
+                            className="w-full border p-2 rounded mt-1"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-600 text-sm">Password</label>
+                        <input
+                            type="password"
+                            className="w-full border p-2 rounded mt-1"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+                    >
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+}

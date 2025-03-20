@@ -266,12 +266,14 @@ export function loginEmployee(req,res){
                     role : user.role,
                     employeeType : user.employeeType,
                     salary : user.salary,
-                    email : user.email
+                    email : user.email,
+                    profilepicture : user.profilepicture,
                 },process.env.jwt)
 
                 res.json({
                     message : "Login Sucessfull" ,
                     token : token,
+                    user : user
                 })
 
             }
