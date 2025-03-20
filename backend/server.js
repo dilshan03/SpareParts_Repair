@@ -1,57 +1,65 @@
+//password= 267KnrH0FysJKJmS
+//"mongodb+srv://admin:267KnrH0FysJKJmS@cluster0.taukt.mongodb.net/"
 
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./db');
-// const repairRoutes = require('./routes/RepairRequestFormRoutes.js');
+import express from "express";
+import mongoose from "mongoose";
+import userRoute from "./route/UserRoute.js";
+import bodyParser from "body-parser";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import leaveRouter from "./route/LeaveRoute.js";
 
-// Initialize Express app
+dotenv.config();
 const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json()); // Parse JSON request bodies
-
-// Connect to MongoDB
-connectDB();
-
-// Use routes *AFTER* initializing app
-// app.use('/api', repairRoutes);
-
-// Define a simple route
-app.get('/', (req, res) => {
-  res.send('MERN Stack App is running!');
-});
-
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-// import express from 'express';
-// import dotenv from 'dotenv';
-// import cors from 'cors';
-// import cookieParser from 'cookie-parser';
-// import connectDB from './config/db.js';
+app.use(bodyParser.json());
 
 
+app.use((req,res,next)=>{
 
-// dotenv.config();
-// connectDB();
+    if(req.path == "/api/employees/login"){
+        return next();
+    }
 
-// const app = express();
+    let token = req.header("Authorization")
 
-// app.use(express.json());
-// app.use(cors());
-// app.use(cookieParser());
+    if(token){
+        token = token.replace("Bearer ", "")
+        jwt.verify(token,process.env.jwt,(error, decoded)=>{
+            if(error){
+                res.status(401).json({
+                    error : "Invalid token"
+                    
+                })
+                return;
+            }
+            req.user=decoded;
+            next();
+            
+        })
+    }
+    else{
+        res.status(401).json({
+            error : "Authorization token required"
+        })
+        return;
+    }
+})
 
-// app.get('/', (req, res) => {
-//     res.send('API is running...');
-// });
+let mongoUrl = process.env.MONGO_URL;
 
-// // Import routes
-// import userRoutes from './routes/userRoutes.js';
-// app.use('/api/users', userRoutes);
 
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+mongoose.connect(mongoUrl);
+
+const conn = mongoose.connection;
+
+conn.once("open",()=>{
+    console.log("Connection established")
+})
+
+app.use("/api/employees",userRoute);
+app.use("/api/leave",leaveRouter);
+
+
+app.listen(5000,()=>{
+    console.log ("Server running on port 5000");
+})
