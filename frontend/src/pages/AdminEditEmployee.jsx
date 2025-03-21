@@ -20,6 +20,8 @@ export default function AdminEditEmployee() {
   const [status, setStatus] = useState(location.state.status);
   const [profilepicture, setPicture] = useState(location.state.profilepicture);
 
+  
+
   //const { id } = useParams(); // Get Employee ID from URL
   const navigate = useNavigate();
   async function handleUpadateEmp(){

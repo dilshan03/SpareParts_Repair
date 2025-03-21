@@ -28,6 +28,9 @@ export default function EmployeeProfile() {
       <p><strong>ID:</strong> {user.id}</p>
       <p><strong>Email:</strong> {user.email}</p>
       <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
+      <p><strong>Address:</strong> {user.address}</p>
+      <p><strong>Age:</strong> {user.age}</p>
+      <p><strong>Phone:</strong> {user.phone}</p>
       <p><strong>Role:</strong> {user.role}</p>
       <p><strong>Employee Type:</strong> {user.employeeType}</p>
       <p><strong>Salary:</strong> ${user.salary}</p>

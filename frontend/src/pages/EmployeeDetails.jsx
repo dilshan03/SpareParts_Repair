@@ -60,12 +60,13 @@ export default function EmployeeDetails() {
               <th className="p-3">Employee ID</th>
               <th className="p-3">Name</th>
               <th className="p-3">Email</th>
-              <th className="p-3">Status</th>
+              <th className="p-3">Age</th>
               <th className="p-3">Salary</th>
               <th className="p-3">Address</th>
               <th className="p-3">Phone</th>
               <th className="p-3">Role</th>
               <th className="p-3">Type</th>
+              <th className="p-3">Status</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
@@ -75,12 +76,13 @@ export default function EmployeeDetails() {
                 <td className="p-3">{emp.id}</td>
                 <td className="p-3">{emp.firstName} {emp.lastName}</td>
                 <td className="p-3">{emp.email}</td>
-                <td className="p-3">{emp.status}</td>
+                <td className="p-3">{emp.age}</td>
                 <td className="p-3">LKR {emp.salary}</td>
                 <td className="p-3">{emp.address}</td>
                 <td className="p-3">{emp.phone}</td>
                 <td className="p-3">{emp.role}</td>
                 <td className="p-3">{emp.employeeType}</td>
+                <td className="p-3">{emp.status}</td>
                 <td className="p-3 flex gap-2">
                   <button
                     className="bg-yellow-500 text-white px-4 py-1 rounded"
