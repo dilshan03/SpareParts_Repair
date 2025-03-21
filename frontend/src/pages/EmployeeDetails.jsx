@@ -13,12 +13,13 @@ export default function EmployeeDetails() {
 
   const fetchEmployees = async () => {
     try {
-      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      const token = localStorage.getItem("token"); 
       const res = await axios.get("http://localhost:5000/api/employees", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(res.data)
       setEmployees(res.data);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -26,8 +27,13 @@ export default function EmployeeDetails() {
     }
   };
   
-
   const handleDelete = async (id) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this employee?");
+    
+    if (!isConfirmed) {
+      return; // Exit the function if the user cancels
+    }
+  
     try {
       await axios.delete(`http://localhost:5000/api/employees/${id}`, {
         headers: {
@@ -41,6 +47,7 @@ export default function EmployeeDetails() {
       toast.error("Failed to delete employee");
     }
   };
+  
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -55,6 +62,10 @@ export default function EmployeeDetails() {
               <th className="p-3">Email</th>
               <th className="p-3">Status</th>
               <th className="p-3">Salary</th>
+              <th className="p-3">Address</th>
+              <th className="p-3">Phone</th>
+              <th className="p-3">Role</th>
+              <th className="p-3">Type</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
@@ -66,13 +77,17 @@ export default function EmployeeDetails() {
                 <td className="p-3">{emp.email}</td>
                 <td className="p-3">{emp.status}</td>
                 <td className="p-3">LKR {emp.salary}</td>
+                <td className="p-3">{emp.address}</td>
+                <td className="p-3">{emp.phone}</td>
+                <td className="p-3">{emp.role}</td>
+                <td className="p-3">{emp.employeeType}</td>
                 <td className="p-3 flex gap-2">
                   <button
                     className="bg-yellow-500 text-white px-4 py-1 rounded"
-                    onClick={() => navigate(`/admin/employees/edit/${emp.id}`)}
-                  >
+                    onClick={() => navigate("/admin/employees/edit/", {state:emp})}>
                     Edit
                   </button>
+                  
                   <button
                     className="bg-red-500 text-white px-4 py-1 rounded"
                     onClick={() => handleDelete(emp.id)}
@@ -84,9 +99,17 @@ export default function EmployeeDetails() {
             ))}
           </tbody>
         </table>
+        
       ) : (
         <p className="text-center text-gray-600 mt-4">No employees found.</p>
       )}
+
+                  <button
+                    className="bg-green-500 text-white px-4 py-1 rounded m-2"
+                    onClick={() => navigate(`/admin/employees/addemp`)}
+                  >
+                    Add Employee
+                  </button>
     </div>
   );
 }

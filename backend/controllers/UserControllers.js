@@ -14,60 +14,55 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-export function createEmployee(req, res) {
-    const data = req.body;
-    const plainPassword = req.body.password;
-    data.password = bcrypt.hashSync(data.password, 10);
+export async function createEmployee(req, res) {
+    try {
 
-    const newUser = new User(data);
+        const data = req.body;
+        const plainPassword = req.body.password;
+        data.password = bcrypt.hashSync(data.password, 10);
 
-    newUser
-        .save()
-        .then(() => {
+        const newUser = new User(data);
 
-            const mailOptions = {
-                from: process.env.EMAIL,
-                to: data.email,
-                subject: "Welcome to COSMOExports!",
-                html: `
-                    <h2>Welcome ${data.firstName} ${data.lastName}!</h2>
-                    <p>We are excited to have you on board.</p>
-                    <p>Your login details:</p>
-                    <ul>
-                        <li><strong>ID:</strong> ${data.id}</li>
-                        <li><strong>Email:</strong> ${data.email}</li>
-                        <li><strong>Password:</strong> ${plainPassword}</li>
-                    </ul>
-                    <p>Please log in to the system and change your password for security reasons</p>
-                    <p>Best Regards,<br>COSMOExports</p>
-                `
-            };
+        await newUser.save(); // Save the user asynchronously
 
-            
-            transporter.sendMail(mailOptions, (error, info) => {
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: data.email,
+            subject: "Welcome to COSMOExports!",
+            html: `
+                <h2>Welcome ${data.firstName} ${data.lastName}!</h2>
+                <p>We are excited to have you on board.</p>
+                <p>Your login details:</p>
+                <ul>
+                    <li><strong>ID:</strong> ${data.id}</li>
+                    <li><strong>Email:</strong> ${data.email}</li>
+                    <li><strong>Password:</strong> ${plainPassword}</li>
+                </ul>
+                <p>Please log in to the system and change your password for security reasons</p>
+                <p>Best Regards,<br>COSMOExports</p>
+            `
+        };
 
-                if (error) {
-                    
-                    res.status(500).json({
-                        message: "Employee created, but email sending failed"
-
-                    });
-                    return ;
-                }
-                
-                res.status(200).json({
-                    message: "Employee created successfully and email sent"
-                });
-                return ;
+        try {
+            await transporter.sendMail(mailOptions); // Send email asynchronously
+            return res.status(200).json({
+                message: "Employee created successfully and email sent"
             });
-        })
-        .catch(() => {
-
-            res.status(500).json({
-                message: "Employee not created"
+        } catch (emailError) {
+            console.error("Email Error:", emailError);
+            return res.status(500).json({
+                message: "Employee created, but email sending failed"
             });
+        }
+
+    } catch (error) {
+        console.error("Database Error:", error);
+        return res.status(500).json({
+            message: "Employee not created"
         });
+    }
 }
+
 
 export function getEmployee(req,res){
 

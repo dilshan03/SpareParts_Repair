@@ -25,11 +25,13 @@ export default function Login() {
 
             // Store token and set it for future requests
             localStorage.setItem("token", res.data.token);
-            ;
+           
+            
+            
 
             if (user.role == "Admin") {
                 navigate("/admin/");
-            } else {
+            } else{
                 navigate("/employeeProfile");
             }
         })

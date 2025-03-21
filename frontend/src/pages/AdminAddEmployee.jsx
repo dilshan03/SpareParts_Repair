@@ -1,48 +1,49 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import toast from "react-hot-toast";
+import axios from 'axios';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export default function AdminEditEmployee() {
+export default function AdminAddEmployee() {
 
-  const location = useLocation();
+    const [empId, setEmpId] = useState("");
+    const [firstName, setFirstNmae] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [address, setAddress] = useState("");
+    const [age, setAge] = useState("");
+    const [phone, setPhone] = useState("");
+    const [role, setRole] = useState("");
+    const [employeeType, setType] = useState("Temporary");
+    const [salary, setSalary] = useState(0);
+    const [status, setStatus] = useState("Not-Available");
+    const [profilepicture, setPicture] = useState("");
 
-  const [empId, setEmpId] = useState(location.state.id);
-  const [firstName, setFirstNmae] = useState(location.state.firstName);
-  const [lastName, setProdusetLastName] = useState(location.state.lastName);
-  const [email, setEmail] = useState(location.state.email);
-  const [address, setAddress] = useState(location.state.address);
-  const [age, setAge] = useState(location.state.age);
-  const [phone, setPhone] = useState(location.state.phone);
-  const [role, setRole] = useState(location.state.role);
-  const [employeeType, setType] = useState(location.state.employeeType);
-  const [salary, setSalary] = useState(location.state.salary);
-  const [status, setStatus] = useState(location.state.status);
-  const [profilepicture, setPicture] = useState(location.state.profilepicture);
+  const navigate= useNavigate();
 
-  //const { id } = useParams(); // Get Employee ID from URL
-  const navigate = useNavigate();
-  async function handleUpadateEmp(){
+  async function handleAddEmp(){
 
     const token = localStorage.getItem("token")
 
     if(token){
-      
       try {
 
-        const result = await axios.put("http://localhost:5000/api/employees/" + empId,
+        const result = await axios.post("http://localhost:5000/api/employees",
           {
+            id:empId,
             firstName : firstName,
             lastName : lastName,
             email : email,
+            password:password,
             address : address,
             age : age,
             phone : phone,
             role : role,
             employeeType : employeeType,
             salary : salary,
+            status:status,
             profilepicture:profilepicture
-
+    
           },{
             headers : {
     
@@ -50,10 +51,12 @@ export default function AdminEditEmployee() {
     
             }
           })
-          toast.success("Employee Upadated successfully")
+          toast.success("Employee added successfully")
           navigate("/admin/employees/details")
         
       } catch (error) {
+
+        console.log(error)
 
         toast.error(error.response.data.error)
       }
@@ -68,11 +71,13 @@ export default function AdminEditEmployee() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-center text-gray-800 uppercase tracking-wide relative mb-6">Update Employee</h1>
+      <h1 className="text-3xl font-bold text-center text-gray-800 uppercase tracking-wide relative mb-6">
+        Add Employee
+      </h1>
   
       <div className='w-[400px] flex flex-col justify-center items-center p-4 rounded-lg'>
+  
         <input
-          disabled // Prevent updating Employee ID
           onChange={(event) => setEmpId(event.target.value)}
           value={empId}
           type="text"
@@ -89,7 +94,7 @@ export default function AdminEditEmployee() {
         />
   
         <input
-          onChange={(event) => setProdusetLastName(event.target.value)}
+          onChange={(event) => setLastName(event.target.value)}
           value={lastName}
           type="text"
           placeholder='Last Name'
@@ -101,6 +106,14 @@ export default function AdminEditEmployee() {
           value={email}
           type="email"
           placeholder='Email'
+          className='p-2 m-2 w-full border rounded'
+        />
+
+        <input
+          onChange={(event) => setPassword(event.target.value)}
+          value={password}
+          type="password"
+          placeholder='Password'
           className='p-2 m-2 w-full border rounded'
         />
   
@@ -124,7 +137,7 @@ export default function AdminEditEmployee() {
           onChange={(event) => setPhone(event.target.value)}
           value={phone}
           type="text"
-          placeholder='Phone'
+          placeholder='Phone Number'
           className='p-2 m-2 w-full border rounded'
         />
   
@@ -133,6 +146,7 @@ export default function AdminEditEmployee() {
           onChange={(event) => setRole(event.target.value)}
           className='p-2 m-2 w-full border rounded'
         >
+          <option value="">Select Role</option>
           <option value="Painter">Painter</option>
           <option value="Technician">Technician</option>
           <option value="Designer">Designer</option>
@@ -145,8 +159,8 @@ export default function AdminEditEmployee() {
           onChange={(event) => setType(event.target.value)}
           className='p-2 m-2 w-full border rounded'
         >
-          <option value="Permanent">Permanent</option>
           <option value="Temporary">Temporary</option>
+          <option value="Permanent">Permanent</option>
         </select>
   
         <input
@@ -162,8 +176,8 @@ export default function AdminEditEmployee() {
           onChange={(event) => setStatus(event.target.value)}
           className='p-2 m-2 w-full border rounded'
         >
-          <option value="Available">Available</option>
           <option value="Not-Available">Not-Available</option>
+          <option value="Available">Available</option>
         </select>
   
         <input
@@ -174,13 +188,14 @@ export default function AdminEditEmployee() {
           className='p-2 m-2 w-full border rounded'
         />
   
-        <button onClick={handleUpadateEmp} className='p-2 m-2 w-full bg-blue-500 text-white rounded hover:bg-blue-600'>
-          Update Employee
+        <button onClick={handleAddEmp} className='p-2 m-2 w-full bg-blue-500 text-white rounded hover:bg-blue-600'>
+          Add Employee
         </button>
   
         <button onClick={() => navigate("/admin/employees/details")} className='p-2 m-2 w-full bg-red-500 text-white rounded hover:bg-red-600'>
           Cancel
         </button>
+  
       </div>
     </div>
   );
