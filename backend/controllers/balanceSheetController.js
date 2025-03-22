@@ -1,152 +1,148 @@
 import PDFDocument from 'pdfkit';
-import fs from 'fs';
-import ExcelJS from 'exceljs';
-import BalanceSheet from '../models/BalanceSheet.js';
+import BalanceSheet from "../models/BalanceSheet.js";
 
-// Controller to add a balance sheet entry
+// 📌 Add Balance Sheet Entry
 export const addBalanceSheet = async (req, res) => {
   try {
-    const { assets, liabilities, equity } = req.body;
+    console.log("Received Data:", req.body);
 
-    // Ensure required fields are present
+    const {
+      assets,
+      liabilities,
+      equity,
+      description,
+    } = req.body;
+
     if (!assets || !liabilities || !equity) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message: "All fields must be provided." });
     }
 
     const newBalanceSheet = new BalanceSheet({
       assets,
       liabilities,
       equity,
+      description,
     });
 
     await newBalanceSheet.save();
-    res.status(201).json({ message: '✅ Balance Sheet Added Successfully', balanceSheet: newBalanceSheet });
+    res.status(201).json({ message: "✅ Balance Sheet Added Successfully", balanceSheet: newBalanceSheet });
   } catch (error) {
-    res.status(500).json({ message: '❌ Server error', error: error.message });
+    res.status(500).json({ message: "❌ Server Error", error: error.message });
   }
 };
 
-// Controller to get all balance sheet entries
+// 📌 Get All Balance Sheets
 export const getBalanceSheets = async (req, res) => {
   try {
     const balanceSheets = await BalanceSheet.find();
     res.status(200).json(balanceSheets);
   } catch (error) {
-    res.status(500).json({ message: '❌ Server error', error: error.message });
+    res.status(500).json({ message: "❌ Server Error", error: error.message });
   }
 };
 
-// Update Balance Sheet by ID
+// 📌 Update Balance Sheet by ID
 export const updateBalanceSheet = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { assets, liabilities, equity } = req.body;
-  
-    try {
-      // Find and update the balance sheet by ID
-      const updatedBalanceSheet = await BalanceSheet.findByIdAndUpdate(
-        id,
-        { assets, liabilities, equity },
-        { new: true } // Return the updated document
-      );
-  
-      if (!updatedBalanceSheet) {
-        return res.status(404).json({ message: "❌ Balance Sheet not found" });
-      }
-  
-      res.status(200).json({ message: "✅ Balance Sheet Updated Successfully!", updatedBalanceSheet });
-    } catch (error) {
-      res.status(500).json({ message: "❌ Error updating Balance Sheet", error });
+    const updatedData = req.body;
+
+    const updatedBalanceSheet = await BalanceSheet.findByIdAndUpdate(id, updatedData, { new: true });
+
+    if (!updatedBalanceSheet) {
+      return res.status(404).json({ message: "❌ Balance Sheet Not Found" });
     }
+
+    res.status(200).json({ message: "✅ Balance Sheet Updated", updatedBalanceSheet });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Error Updating Balance Sheet", error });
+  }
 };
 
-// Delete Balance Sheet by ID
+// 📌 Delete Balance Sheet by ID
 export const deleteBalanceSheet = async (req, res) => {
+  try {
     const { id } = req.params;
-  
-    try {
-      const deletedBalanceSheet = await BalanceSheet.findByIdAndDelete(id);
-  
-      if (!deletedBalanceSheet) {
-        return res.status(404).json({ message: "❌ Balance Sheet not found" });
-      }
-  
-      res.status(200).json({ message: "✅ Balance Sheet Deleted Successfully!", deletedBalanceSheet });
-    } catch (error) {
-      res.status(500).json({ message: "❌ Error deleting Balance Sheet", error });
+
+    const deletedBalanceSheet = await BalanceSheet.findByIdAndDelete(id);
+
+    if (!deletedBalanceSheet) {
+      return res.status(404).json({ message: "❌ Balance Sheet Not Found" });
     }
+
+    res.status(200).json({ message: "✅ Balance Sheet Deleted", deletedBalanceSheet });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Error Deleting Balance Sheet", error });
+  }
 };
 
-
+// PDF generation logic
 export const generateBalanceSheetPDF = async (req, res) => {
     try {
-      const balanceSheets = await BalanceSheet.find();
-  
-      // Create a document
-      const doc = new PDFDocument();
-  
-      // Set the response headers for downloading the PDF
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=balance-sheets.pdf');
-  
-      // Pipe the PDF document to the response
-      doc.pipe(res);
-  
-      // Title
-      doc.fontSize(18).text('Balance Sheet Report', { align: 'center' });
-      doc.moveDown();
-  
-      // Table Header
-      doc.fontSize(12).text('ID | Assets | Liabilities | Equity');
-      doc.moveDown();
-  
-      // Table rows
-      balanceSheets.forEach(sheet => {
-        doc.text(`${sheet._id} | ${sheet.assets} | ${sheet.liabilities} | ${sheet.equity}`);
-      });
-  
-      // Finalize the PDF document
-      doc.end();
-    } catch (error) {
-      res.status(500).json({ message: "❌ Error generating PDF report", error });
-    }
-};
+        // Fetch balance sheets from database
+        const balanceSheets = await BalanceSheet.find();
 
+        if (balanceSheets.length === 0) {
+            return res.status(404).json({ message: "No balance sheets found" });
+        }
 
-  export const generateBalanceSheetExcel = async (req, res) => {
-    try {
-      const balanceSheets = await BalanceSheet.find();
-  
-      // Create a new Excel workbook
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Balance Sheets');
-  
-      // Add column headers
-      worksheet.columns = [
-        { header: 'ID', key: '_id', width: 30 },
-        { header: 'Assets', key: 'assets', width: 15 },
-        { header: 'Liabilities', key: 'liabilities', width: 15 },
-        { header: 'Equity', key: 'equity', width: 15 },
-      ];
-  
-      // Add data rows
-      balanceSheets.forEach(sheet => {
-        worksheet.addRow({
-          _id: sheet._id,
-          assets: sheet.assets,
-          liabilities: sheet.liabilities,
-          equity: sheet.equity
+        // Create a new PDF document
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=balance-sheets.pdf');
+        doc.pipe(res);
+
+        doc.fontSize(18).text('Detailed Balance Sheet Report', { align: 'center' });
+        doc.moveDown();
+
+        balanceSheets.forEach((sheet, index) => {
+            doc.fontSize(14).text(`Balance Sheet #${index + 1}`, { underline: true });
+            doc.moveDown();
+
+            // Assets Breakdown
+            doc.fontSize(12).text('Assets', { underline: true });
+            doc.text('Current Assets:');
+            doc.text(`- Cash & Bank Balances: ${sheet.assets.currentAssets.cashBankBalances}`);
+            doc.text(`- Accounts Receivable: ${sheet.assets.currentAssets.accountsReceivable}`);
+            doc.text(`- Inventory: ${sheet.assets.currentAssets.inventory}`);
+            doc.text(`- Prepaid Expenses: ${sheet.assets.currentAssets.prepaidExpenses}`);
+            doc.moveDown();
+
+            doc.text('Non-Current Assets:');
+            doc.text(`- Property, Plant & Equipment: ${sheet.assets.nonCurrentAssets.propertyPlantEquipment}`);
+            doc.text(`- Machinery & Tools: ${sheet.assets.nonCurrentAssets.machineryTools}`);
+            doc.text(`- Vehicles: ${sheet.assets.nonCurrentAssets.vehicles}`);
+            doc.text(`- Intangible Assets: ${sheet.assets.nonCurrentAssets.intangibleAssets}`);
+            doc.moveDown();
+
+            // Liabilities Breakdown
+            doc.fontSize(12).text('Liabilities', { underline: true });
+            doc.text('Current Liabilities:');
+            doc.text(`- Accounts Payable: ${sheet.liabilities.currentLiabilities.accountsPayable}`);
+            doc.text(`- Short-Term Loans: ${sheet.liabilities.currentLiabilities.shortTermLoans}`);
+            doc.text(`- Taxes Payable: ${sheet.liabilities.currentLiabilities.taxesPayable}`);
+            doc.text(`- Wages Payable: ${sheet.liabilities.currentLiabilities.wagesPayable}`);
+            doc.moveDown();
+
+            doc.text('Non-Current Liabilities:');
+            doc.text(`- Long-Term Loans: ${sheet.liabilities.nonCurrentLiabilities.longTermLoans}`);
+            doc.text(`- Lease Obligations: ${sheet.liabilities.nonCurrentLiabilities.leaseObligations}`);
+            doc.text(`- Deferred Tax Liabilities: ${sheet.liabilities.nonCurrentLiabilities.deferredTaxLiabilities}`);
+            doc.moveDown();
+
+            // Equity Breakdown
+            doc.fontSize(12).text('Equity', { underline: true });
+            doc.text(`- Owner’s Capital: ${sheet.equity.ownersCapital}`);
+            doc.text(`- Retained Earnings: ${sheet.equity.retainedEarnings}`);
+            doc.text(`- Shareholder Contributions: ${sheet.equity.shareholderContributions}`);
+            doc.moveDown();
         });
-      });
-  
-      // Set response headers for Excel file download
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', 'attachment; filename=balance-sheets.xlsx');
-  
-      // Write Excel file to the response
-      await workbook.xlsx.write(res);
-  
-      res.end();
+
+        // End the PDF document
+        doc.end();
     } catch (error) {
-      res.status(500).json({ message: "❌ Error generating Excel report", error });
+        console.error("Error generating PDF:", error);
+        res.status(500).json({ message: '❌ Error generating PDF report', error });
     }
 };
+

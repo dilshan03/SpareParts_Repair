@@ -1,5 +1,5 @@
 // src/components/BalanceSheetDetail.js
-import React, { useEffect, useState } from "react";
+/*import React, { useEffect, useState } from "react";
 import { fetchBalanceSheet } from "../api/balanceSheet"; // import API call
 import { useParams } from "react-router-dom"; // To get the ID from the URL
 
@@ -48,3 +48,4 @@ const BalanceSheetDetail = () => {
 };
 
 export default BalanceSheetDetail;
+*/

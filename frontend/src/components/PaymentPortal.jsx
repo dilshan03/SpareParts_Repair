@@ -42,7 +42,17 @@ const PaymentPortal = () => {
     };
 
     return (
-        <div className="container mt-5">
+        
+        <div className="container mt-5" 
+            style={{ 
+                backgroundImage: "url('/uploads/paymentPortal.jpg')", 
+                backgroundSize: "cover", 
+                backgroundPosition: "center", 
+                minHeight: "100vh", 
+                padding: "20px"
+        }}
+>
+
             <div className="card shadow p-4">
                 <h2 className="text-center mb-4">Payment Portal</h2>
                 {message && <div className="alert alert-success">{message}</div>}
@@ -100,6 +110,7 @@ const PaymentPortal = () => {
                 </form>
             </div>
         </div>
+       
     );
 };
 
