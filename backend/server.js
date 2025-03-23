@@ -1,65 +1,39 @@
-//password= 267KnrH0FysJKJmS
-//"mongodb+srv://admin:267KnrH0FysJKJmS@cluster0.taukt.mongodb.net/"
-
 import express from "express";
 import mongoose from "mongoose";
-import userRoute from "./route/UserRoute.js";
 import bodyParser from "body-parser";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import cors from "cors";  // Import CORS
+import userRoute from "./route/UserRoute.js";
 import leaveRouter from "./route/LeaveRoute.js";
+import sparePartRoutes from "./route/productRoute.js";
 
 dotenv.config();
 const app = express();
+
+// 🔹 Middleware
 app.use(bodyParser.json());
+app.use(cors());  // Enable CORS
 
+// 🔹 Static Folder for Images
+app.use("/uploads", express.static("uploads"));
 
-app.use((req,res,next)=>{
-
-    if(req.path == "/api/employees/login"){
-        return next();
-    }
-
-    let token = req.header("Authorization")
-
-    if(token){
-        token = token.replace("Bearer ", "")
-        jwt.verify(token,process.env.jwt,(error, decoded)=>{
-            if(error){
-                res.status(401).json({
-                    error : "Invalid token"
-                    
-                })
-                return;
-            }
-            req.user=decoded;
-            next();
-            
-        })
-    }
-    else{
-        res.status(401).json({
-            error : "Authorization token required"
-        })
-        return;
-    }
-})
-
+// 🔹 MongoDB Connection
 let mongoUrl = process.env.MONGO_URL;
-
-
-mongoose.connect(mongoUrl);
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const conn = mongoose.connection;
+conn.once("open", () => {
+    console.log("Connection established");
+});
 
-conn.once("open",()=>{
-    console.log("Connection established")
-})
+// 🔹 Routes
+app.use("/api/employees", userRoute);
+app.use("/api/leave", leaveRouter);
+app.use("/api/spareparts", sparePartRoutes);
 
-app.use("/api/employees",userRoute);
-app.use("/api/leave",leaveRouter);
+// 🔹 Start Server
+app.listen(5000, () => {
+    console.log("Server running on port 5000");
+}
 
-
-app.listen(5000,()=>{
-    console.log ("Server running on port 5000");
-})
+);
