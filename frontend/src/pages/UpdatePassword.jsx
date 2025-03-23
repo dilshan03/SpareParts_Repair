@@ -47,8 +47,8 @@ export default function PasswordReset() {
         try {
             setLoading(true);
             const res = await axios.post("http://localhost:5000/api/employees/reset-password", { email, newPassword });
-            toast.success("Password Reset Successfully!"); // ✅ Show success message
-            navigate("/login"); // ✅ Redirect to login page
+            toast.success("Password Reset Successfully!"); //  Show success message
+            navigate("/login"); //  Redirect to login page
         } catch (err) {
             setMessage(err.response?.data?.error || "Failed to reset password");
         } finally {
@@ -119,7 +119,7 @@ export default function PasswordReset() {
                     </>
                 )}
 
-                {message && <p className="mt-4 text-red-500">{message}</p>}
+                {message && <p className="mt-4 text-green-500">{message}</p>}
             </div>
         </div>
     );

@@ -1,37 +1,28 @@
 import Leave from "../models/LeaveModel.js";
 import { isAdmin , isEmployee } from "./UserControllers.js";
 
-export function requestLeave(req, res) {
-
+export async function requestLeave(req, res) {
     if (!req.user) {
-        res.status(401).json({ 
-            message: "Please log in and try again" 
-        });
-        return;
-    }
-    else if(req.user.role == "User"){
-        res.status(401).json({ 
-            message: "You are not authorized to do it" 
-        });
-        return;
+        return res.status(401).json({ message: "Please log in and try again" });
+    } else if (req.user.role == "User") {
+        return res.status(401).json({ message: "You are not authorized to do it" });
     }
 
-    const data = req.body;
-    data.email = req.user.email;
-    data.name = req.user.firstName + " " + req.user.lastName;
-    
-    const newLeave = new Leave(data);
-    newLeave.save().then(() =>{
-        res.json({ 
-            message: "Leave request submitted successfully" 
-        }) 
-       
-    }).catch(() => {
-        res.status(500).json({
-            message: "Failed to submit leave request" 
+    try {
+        const newLeave = new Leave({
+            email: req.user.email,
+            name: `${req.user.firstName} ${req.user.lastName}`,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+            reason: req.body.reason,
+            status: "Pending",
         });
 
-    }) 
+        await newLeave.save();
+        res.json({ message: "Leave request submitted successfully", leave: newLeave });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to submit leave request" });
+    }
 }
 
 export function getLeaveRequests(req, res) {

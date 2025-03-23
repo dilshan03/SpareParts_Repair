@@ -52,6 +52,8 @@ export default function LeaveDetails() {
     }
   };
 
+  
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-3xl font-bold mb-6">Leave Details</h2>

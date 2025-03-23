@@ -11,7 +11,7 @@ export default function LeaveRequest({ user }) {
   const [existingLeave, setExistingLeave] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/leaves/${user.id}`)
+    axios.get(`http://localhost:5000/api/leave/${user.id}`)
       .then(response => {
         if (response.data) {
           setExistingLeave(response.data);
@@ -26,14 +26,14 @@ export default function LeaveRequest({ user }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:5000/api/leaves", leave)
+    axios.post("http://localhost:5000/api/leave", leave)
       .then(() => alert("Leave request submitted successfully"))
       .catch(() => alert("Error submitting leave request"));
   };
 
   const handleUpdate = (e) => {
     e.preventDefault();
-    axios.put(`http://localhost:5000/api/leaves/${existingLeave.id}`, {
+    axios.put(`http://localhost:5000/api/leave/${existingLeave.id}`, {
       startDate: leave.startDate,
       endDate: leave.endDate,
       reason: leave.reason,

@@ -7,6 +7,9 @@ export default function EmployeeProfile() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Extract employee details from state
+  const employee = location.state || {};
+
   const [empId] = useState(location.state.id);
   const [firstName] = useState(location.state.firstName);
   const [lastName] = useState(location.state.lastName);
@@ -45,63 +48,63 @@ export default function EmployeeProfile() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="bg-teal-600 text-white p-6 rounded-lg shadow-lg w-[800px] border border-gray-300">
+      <div className="bg-blue-900 text-white p-6 rounded-lg shadow-lg w-[800px] border border-gray-300">
         <h1 className="text-4xl font-bold text-center mb-4 uppercase">Employee Profile</h1>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1">
-            <label className="block text-sm">Employee ID:</label>
+            <label className="block text-2xl">Employee ID:</label>
             <input value={empId} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">First Name:</label>
+            <label className="block text-2xl">First Name:</label>
             <input value={firstName} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Last Name:</label>
+            <label className="block text-2xl">Last Name:</label>
             <input value={lastName} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Email:</label>
+            <label className="block text-2xl">Email:</label>
             <input value={email} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm">Address:</label>
+            <label className="block text-2xl">Address:</label>
             <input value={address} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Age:</label>
+            <label className="block text-2xl">Age:</label>
             <input value={age} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Phone:</label>
+            <label className="block text-2xl">Phone:</label>
             <input value={phone} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Role:</label>
+            <label className="block text-2xl">Role:</label>
             <input value={role} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Employee Type:</label>
+            <label className="block text-2xl">Employee Type:</label>
             <input value={employeeType} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm">Salary:</label>
+            <label className="block text-2xl">Salary:</label>
             <input value={salary} disabled className="w-full p-2 border rounded bg-gray-200 text-black" />
           </div>
 
           <div className="col-span-2">
-            <label className="block text-sm">Status:</label>
+            <label className="block text-2xl">Status:</label>
             <div className="flex gap-2 mt-2">
               <button
                 onClick={() => updateStatus("Available")}
-                className={`w-1/2 p-2 rounded text-white ${status === "Available" ? "bg-green-700" : "bg-green-500 hover:bg-green-600"}`}
+                className={`w-1/2 p-2 rounded text-white ${status === "Available" ? "bg-green-600" : "bg-gray-400"}`}
               >
                 Available
               </button>
               <button
                 onClick={() => updateStatus("Not-Available")}
-                className={`w-1/2 p-2 rounded text-white ${status === "Not-Available" ? "bg-red-700" : "bg-red-500 hover:bg-red-600"}`}
+                className={`w-1/2 p-2 rounded text-white ${status === "Not-Available" ? "bg-red-600" : "bg-gray-400"}`}
               >
                 Not Available
               </button>
@@ -111,7 +114,7 @@ export default function EmployeeProfile() {
 
         <div className="flex justify-between mt-6">
           <button
-            onClick={() => navigate("/employeeProfile/leave", { state: location.state.id })}
+            onClick={() => navigate("/employeeProfile/leave", { state: employee })}
             className="p-2 w-1/3 bg-green-500 text-white rounded hover:bg-green-600"
           >
             Request Leave
