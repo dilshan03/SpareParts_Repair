@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import AddTransaction from "./AddTransaction";
+//import BalanceSheet from "./BalanceSheetList";
+import PaymentPortal from "./PaymentPortal";
+import PettyCashManagement from "./PettyCashManagement";
 
 const FinanceDashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [reports, setReports] = useState({});
-  const [newTransaction, setNewTransaction] = useState({
-    type: "",
-    amount: "",
-    description: "",
-  });
-
-  const navigate = useNavigate();  // useNavigate hook
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTransactions();
@@ -20,9 +19,8 @@ const FinanceDashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/finance/");
-      const data = await response.json();
-      setTransactions(data);
+      const response = await axios.get("http://localhost:5000/api/finance/");
+      setTransactions(response.data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -30,43 +28,17 @@ const FinanceDashboard = () => {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/finance/reports");
-      const data = await response.json();
-      setReports(data);
+      const response = await axios.get("http://localhost:5000/api/finance/reports");
+      setReports(response.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
     }
   };
-
-  const handleChange = (e) => {
-    setNewTransaction({ ...newTransaction, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:5000/api/finance/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTransaction),
-      });
-
-      if (response.ok) {
-        alert("Transaction added successfully!");
-        setNewTransaction({ type: "", amount: "", description: "" });
-        fetchTransactions();
-      }
-    } catch (error) {
-      console.error("Error adding transaction:", error);
-    }
-  };
-
+/*
   const handleDownload = async (type) => {
     try {
       const response = await axios.get(`http://localhost:5000/api/finance/reports/${type}`, {
-        responseType: "blob", // Important for file downloads
+        responseType: "blob",
       });
       const blob = new Blob([response.data]);
       const link = document.createElement("a");
@@ -79,59 +51,128 @@ const FinanceDashboard = () => {
       console.error("Error downloading report:", error);
     }
   };
+*/
 
-  const handleDelete = async (transactionId) => {
-    try {
-      const response = await axios.delete(`http://localhost:5000/api/finance/delete/${transactionId}`);
-      if (response.status === 200) {
-        alert("Transaction deleted successfully!");
-        fetchTransactions(); // Refresh the transaction list
-      }
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
-    }
-  };
+/*
+const handleDownload = async (type) => {
+  let url = "";
 
-  // Handle navigation to Petty Cash management page
-  const handleManagePettyCash = () => {
-    navigate("/petty-cash");
-  };
+  // Map request type to the correct API endpoint
+  if (type === "pdf") {
+    url = "http://localhost:5000/api/finance/reports/pdf";
+  } else if (type === "excel") {
+    url = "http://localhost:5000/api/finance/reports/excel";
+  } else if (type === "balance-sheet-pdf") {
+    url = "http://localhost:5000/api/balance-sheet/pdf"; // Corrected URL
+  } else if (type === "balance-sheet-excel") {
+    url = "http://localhost:5000/api/finance/reports/balance-sheet-excel";
+  } else {
+    console.error("Invalid report type:", type);
+    return;
+  }
+
+  try {
+    const response = await axios.get(url, {
+      responseType: "blob",
+      headers: { "Accept": "application/pdf" }, // Ensure correct content type
+    });
+
+    const blob = new Blob([response.data], { type: type.includes("pdf") ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = type.includes("pdf") ? "balance-sheet.pdf" : "balance-sheet.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error(`Error downloading ${type}:`, error);
+  }
+};
+*/
+
+const handleDownload = async (type) => {
+  let url = "";
+  let filename = "";
+
+  // Map request type to the correct API endpoint and file name
+  if (type === "pdf") {
+    url = "http://localhost:5000/api/finance/reports/pdf";
+    filename = "transaction-history.pdf"; // Correct filename
+  } else if (type === "excel") {
+    url = "http://localhost:5000/api/finance/reports/excel";
+    filename = "transaction-history.xlsx";
+  } else if (type === "balance-sheet-pdf") {
+    url = "http://localhost:5000/api/balance-sheet/pdf";
+    filename = "balance-sheet.pdf";
+  } else if (type === "balance-sheet-excel") {
+    url = "http://localhost:5000/api/finance/reports/balance-sheet-excel";
+    filename = "balance-sheet.xlsx";
+  } else {
+    console.error("Invalid report type:", type);
+    return;
+  }
+
+  try {
+    const response = await axios.get(url, {
+      responseType: "blob",
+      headers: { "Accept": "application/pdf" }, // Ensure correct content type
+    });
+
+    const blob = new Blob([response.data], { type: type.includes("pdf") ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename; // ✅ Correct filename per type
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error(`Error downloading ${type}:`, error);
+  }
+};
+
 
   return (
-    <div className="container mt-20">
+    <div className="container mt-4">
       <h2>Finance Dashboard</h2>
 
-      {/* Financial Reports */}
-      <div className="row">
-        <div className="col-md-20">
-          <div className="card">
-            <div className="card-header bg-primary text-white">
-              <h5>Financial Reports</h5>
-            </div>
-            <div className="card-body">
-              <p><strong>Balance Sheet:</strong> Assets: LKR {reports?.balanceSheet?.assets} | Liabilities: LKR {reports?.balanceSheet?.liabilities} | Equity: LKR {reports?.balanceSheet?.equity}</p>
-              <p><strong>Profit & Loss:</strong> Revenue: LKR {reports?.profitLoss?.revenue} | Expenses: LKR {reports?.profitLoss?.expenses} | Profit: LKR {reports?.profitLoss?.profit}</p>
-              <p><strong>Sales Report:</strong> Total Sales: LKR {reports?.salesReport?.totalSales}</p>
 
-              {/* Existing download buttons for transaction history */}
-              <button onClick={() => handleDownload("pdf")} className="btn btn-danger">Download Transaction History as PDF Report</button> &nbsp;
-              <button onClick={() => handleDownload("excel")} className="btn btn-success ml-2">Download Transaction History as Excel Report</button>
-              <br></br>
-              {/* New download buttons for Balance Sheet */}
-              <button onClick={() => handleDownload("balance-sheet-pdf")} className="btn btn-warning mt-2">Download Balance Sheet as PDF</button>  &nbsp;
-              <button onClick={() => handleDownload("balance-sheet-excel")} className="btn btn-info mt-2">Download Balance Sheet as Excel</button>
-            </div>
+      {/* Back to Admin Dashboard Button */}
+      <button onClick={() => navigate("/")} className="btn btn-secondary mb-3">
+        ⬅ Back to Admin Dashboard
+      </button>
+      
+      <div className="btn-group mb-4">
+        <button className="btn btn-primary" onClick={() => setActiveTab("dashboard")}>Dashboard</button>
+        <button className="btn btn-success" onClick={() => setActiveTab("add-transaction")}>Add Transaction</button>
+        <button className="btn btn-warning" onClick={() => setActiveTab("balance-sheet")}>Balance Sheet</button>
+        <button className="btn btn-info" onClick={() => setActiveTab("payment-portal")}>Payment Portal</button>
+        <button className="btn btn-secondary" onClick={() => setActiveTab("petty-cash")}>Petty Cash Management</button>
+      </div>
+
+      {activeTab === "dashboard" && (
+        <div className="card">
+          <div className="card-header bg-primary text-white">
+            <h5>Financial Reports</h5>
+          </div>
+          <div className="card-body">
+            {/*<p><strong>Balance Sheet:</strong> Assets: LKR {reports?.balanceSheet?.assets} | Liabilities: LKR {reports?.balanceSheet?.liabilities} | Equity: LKR {reports?.balanceSheet?.equity}</p>*/}
+            <p><strong>Profit & Loss:</strong> Revenue: LKR {reports?.profitLoss?.revenue} | Expenses: LKR {reports?.profitLoss?.expenses} | Profit: LKR {reports?.profitLoss?.profit}</p>
+            {/*<p><strong>Sales Report:</strong> Total Sales: LKR {reports?.salesReport?.totalSales}</p>*/}
+
+            <button onClick={() => handleDownload("pdf")} className="btn btn-danger">Download Transaction History as PDF</button> &nbsp;
+            <button onClick={() => handleDownload("excel")} className="btn btn-success">Download as Excel</button>
+            <br />
+            <button onClick={() => handleDownload("balance-sheet-pdf")} className="btn btn-warning mt-2">Download Balance Sheet as PDF</button>  &nbsp;
+            {/*<button onClick={() => handleDownload("balance-sheet-excel")} className="btn btn-info mt-2">Download Balance Sheet as Excel</button>*/}
           </div>
         </div>
+      )}
 
-        
-        
-      </div>
-
-      
-
-     
-      </div>
+      {activeTab === "add-transaction" && <AddTransaction />}
+      {activeTab === "balance-sheet" && <BalanceSheet />}
+      {activeTab === "payment-portal" && <PaymentPortal />}
+      {activeTab === "petty-cash" && <PettyCashManagement />}
+    </div>
   );
 };
 

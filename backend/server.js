@@ -3,20 +3,41 @@
 
 import express from "express";
 import mongoose from "mongoose";
-import userRoute from "./route/UserRoute.js";
+import userRoute from "./route/HR/UserRoute.js";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import leaveRouter from "./route/LeaveRoute.js";
+import leaveRouter from "./route/HR/LeaveRoute.js";
+import salaryRouter from "./route/HR/SalaryRoute.js";
+import cors from "cors";
 
 dotenv.config();
+
 const app = express();
+
+app.use(
+    cors({
+      origin: "http://localhost:5173", // Allow frontend URL
+      credentials: true, // Allow cookies, authorization headers
+      methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+      allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    })
+  );
+  
 app.use(bodyParser.json());
 
 
 app.use((req,res,next)=>{
 
-    if(req.path == "/api/employees/login"){
+    const publicRoutes = [
+        "/api/employees/login",
+        "/api/employees/request-otp",
+        "/api/employees/verify-otp",
+        "/api/employees/reset-password"
+    ];
+    
+    if (publicRoutes.includes(req.originalUrl)) {
+        console.log(`Bypassing auth for: ${req.originalUrl}`);
         return next();
     }
 
@@ -58,8 +79,9 @@ conn.once("open",()=>{
 
 app.use("/api/employees",userRoute);
 app.use("/api/leave",leaveRouter);
+app.use("/api/salary",salaryRouter);
 
 
 app.listen(5000,()=>{
-    console.log ("Server running on port 5000");
+    console.log ("Server running on port 5000");
 })
