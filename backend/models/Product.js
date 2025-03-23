@@ -1,3 +1,5 @@
+//Product.js
+
 import mongoose from "mongoose";
 
 const SparePartSchema = new mongoose.Schema({
@@ -8,7 +10,7 @@ const SparePartSchema = new mongoose.Schema({
     price: { type: Number, required: true, min: 0 },
     condition: { type: String, required: true, enum: ["New", "Used", "Refurbished"] },
     category: { type: String, required: true },
-    reorderLevel: { type: Number, required: true, min: 0 } // New field for reorder level
+    reorderLevel: {type: Number} // New field for reorder level
 }, { timestamps: true });
 
 const SparePart = mongoose.model("SparePart", SparePartSchema);

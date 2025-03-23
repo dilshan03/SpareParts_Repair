@@ -1,3 +1,5 @@
+//productController.js
+
 import SparePart from "../models/Product.js";
 import nodemailer from 'nodemailer'; // Import nodemailer
 

@@ -31,7 +31,7 @@ const UpdateProduct = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Send the updated data to the backend (including quantity)
+            // Send the updated data to the backend (including quantity)y
             await axios.put(`http://localhost:5000/api/spareparts/${id}`, formData);
             navigate("/manageInventory");
         } catch (error) {
