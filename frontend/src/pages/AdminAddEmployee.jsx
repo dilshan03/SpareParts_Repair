@@ -16,15 +16,36 @@ export default function AdminAddEmployee() {
     const [role, setRole] = useState("");
     const [employeeType, setType] = useState("Temporary");
     const [salary, setSalary] = useState(0);
-    const [status, setStatus] = useState("Not-Available");
+    const [status, setStatus] = useState("Available");
     const [profilepicture, setPicture] = useState("");
 
-  const navigate= useNavigate();
+    const [errors, setErrors] = useState({});
 
-  async function handleAddEmp(){
-
-    const token = localStorage.getItem("token")
-
+    const validate = () => {
+      let tempErrors = {};
+      if (!/^EMP\d{4}$/.test(empId)) tempErrors.empId = "Employee ID must start with 'EMP' followed by 4 digits.";
+      if (!/^\S+@\S+\.\S+$/.test(email)) tempErrors.email = "Invalid email format.";
+      if (!(age >= 18 && age <= 65)) tempErrors.age = "Age must be between 18 and 65.";
+      if (!/^\d{10}$/.test(phone)) tempErrors.phone = "Phone number must be exactly 10 digits.";
+      setErrors(tempErrors);
+      return Object.keys(tempErrors).length === 0;
+    };
+  
+    
+  
+    //const { id } = useParams(); // Get Employee ID from URL
+    const navigate = useNavigate();
+    async function handleAddEmp(){
+      
+        if (!validate()) return;
+    
+        const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("Please login and retry");
+          return;
+        }
+  
+      
     if(token){
       try {
 
@@ -76,14 +97,9 @@ export default function AdminAddEmployee() {
       </h1>
   
       <div className='w-[400px] flex flex-col justify-center items-center p-4 rounded-lg'>
-  
-        <input
-          onChange={(event) => setEmpId(event.target.value)}
-          value={empId}
-          type="text"
-          placeholder='Employee ID'
-          className='p-2 m-2 w-full border rounded'
-        />
+                <input onChange={e => setEmpId(e.target.value)} value={empId} type="text" placeholder='Employee ID' className='p-2 m-2 w-full border rounded' />
+                {errors.empId && <p className='text-red-500'>{errors.empId}</p>}
+
   
         <input
           onChange={(event) => setFirstNmae(event.target.value)}
@@ -101,13 +117,8 @@ export default function AdminAddEmployee() {
           className='p-2 m-2 w-full border rounded'
         />
   
-        <input
-          onChange={(event) => setEmail(event.target.value)}
-          value={email}
-          type="email"
-          placeholder='Email'
-          className='p-2 m-2 w-full border rounded'
-        />
+        <input onChange={e => setEmail(e.target.value)} value={email} type="email" placeholder='Email' className='p-2 m-2 w-full border rounded' />
+        {errors.email && <p className='text-red-500'>{errors.email}</p>}
 
         <input
           onChange={(event) => setPassword(event.target.value)}
@@ -124,22 +135,11 @@ export default function AdminAddEmployee() {
           placeholder='Address'
           className='p-2 m-2 w-full border rounded'
         />
+        <input onChange={e => setAge(e.target.value)} value={age} type="number" placeholder='Age' className='p-2 m-2 w-full border rounded' />
+        {errors.age && <p className='text-red-500'>{errors.age}</p>}
   
-        <input
-          onChange={(event) => setAge(event.target.value)}
-          value={age}
-          type="number"
-          placeholder='Age'
-          className='p-2 m-2 w-full border rounded'
-        />
-  
-        <input
-          onChange={(event) => setPhone(event.target.value)}
-          value={phone}
-          type="text"
-          placeholder='Phone Number'
-          className='p-2 m-2 w-full border rounded'
-        />
+        <input onChange={e => setPhone(e.target.value)} value={phone} type="text" placeholder='Phone Number' className='p-2 m-2 w-full border rounded' />
+        {errors.phone && <p className='text-red-500'>{errors.phone}</p>}
   
         <select
           value={role}

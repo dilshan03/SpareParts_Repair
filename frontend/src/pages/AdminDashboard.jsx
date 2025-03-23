@@ -7,7 +7,7 @@ export default function AdminDashboard() {
 
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Admin Dashboard</h2>
 
-      <Link to="/admin/employees" className="bg-blue-500 text-white px-4 py-2 rounded">Employee dashboard</Link>
+      <Link to="/admin/employees/details" className="bg-blue-500 text-white px-4 py-2 rounded">Employee dashboard</Link>
 
       
 

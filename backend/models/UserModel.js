@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
@@ -64,6 +63,16 @@ const userSchema = new Schema({
         type: String,
         required: true,
         default: "Available"
+    },
+
+    otp: {
+        default:0,
+        type: String,
+    },
+
+    otpExpires: {
+        default:"0",
+        type: Date,
     },
 
     profilepicture: {

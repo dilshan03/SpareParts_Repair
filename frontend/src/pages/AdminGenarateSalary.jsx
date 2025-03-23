@@ -87,7 +87,7 @@ export default function GenerateSalary() {
   </button>
 
   <button
-    onClick={() => navigate("/admin/dashboard")}
+    onClick={() => navigate("/admin/employees/salary")}
     className="p-2 m-2 w-full bg-red-500 text-white rounded hover:bg-red-600"
   >
     Cancel

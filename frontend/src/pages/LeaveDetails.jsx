@@ -16,7 +16,7 @@ export default function LeaveDetails() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Ensure all leaves have a default status of "Pending"
+      // Set default status to "Pending" if not set
       const updatedLeaves = res.data.map((leave) => ({
         ...leave,
         status: leave.status || "Pending",
@@ -30,13 +30,6 @@ export default function LeaveDetails() {
 
   const updateLeaveStatus = async (id, newStatus) => {
     try {
-      // Optimistically update UI before API call
-      setLeaveRequests((prev) =>
-        prev.map((leave) =>
-          leave.id === id ? { ...leave, status: newStatus } : leave
-        )
-      );
-
       await axios.put(
         `http://localhost:5000/api/leave/${id}`,
         { status: newStatus },
@@ -45,11 +38,17 @@ export default function LeaveDetails() {
         }
       );
 
+      // Update UI
+      setLeaveRequests((prev) =>
+        prev.map((leave) =>
+          leave.id === id ? { ...leave, status: newStatus } : leave
+        )
+      );
+
       toast.success(`Leave ${newStatus.toLowerCase()} successfully`);
     } catch (error) {
       console.error("Error updating leave status:", error);
       toast.error("Failed to update leave status");
-      fetchLeaveRequests(); // Revert changes if API fails
     }
   };
 
@@ -93,15 +92,18 @@ export default function LeaveDetails() {
                   </span>
                 </td>
                 <td className="p-3 flex gap-2">
+                  {/* Approve Button */}
                   <button
-                    className="bg-green-500 text-white px-4 py-1 rounded disabled:opacity-50"
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded disabled:opacity-50"
                     disabled={leave.status === "Approved"}
                     onClick={() => updateLeaveStatus(leave.id, "Approved")}
                   >
                     Approve
                   </button>
+
+                  {/* Reject Button */}
                   <button
-                    className="bg-red-500 text-white px-4 py-1 rounded disabled:opacity-50"
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded disabled:opacity-50"
                     disabled={leave.status === "Rejected"}
                     onClick={() => updateLeaveStatus(leave.id, "Rejected")}
                   >

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link,useLocation, Routes, Route } from "react-router-dom";
 import EmployeeDetails from "../pages/EmployeeDetails";
 import SalaryDetails from "../pages/SalaryDetails";
 import LeaveDetails from "../pages/LeaveDetails";
@@ -8,24 +8,56 @@ import AdminAddEmployee from "../pages/AdminAddEmployee";
 import AdminGenarateSalary from "../pages/AdminGenarateSalary";
 
 export default function AdminPanel() {
+
+  const location = useLocation(); // Get the current route
+
+  // Function to check if a link is active
+  const isActive = (path) => location.pathname.startsWith(path);
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Employee Dashboard</h3>
-        <div className="space-y-2">
-         
-          <Link to="/admin/employees/details" className="block px-4 py-2 text-gray-700 hover:bg-blue-100 rounded">
-            Employee Details
-          </Link>
-          <Link to="/admin/employees/salary" className="block px-4 py-2 text-gray-700 hover:bg-blue-100 rounded">
-            Salary Details
-          </Link>
-          <Link to="/admin/employees/leaves" className="block px-4 py-2 text-gray-700 hover:bg-blue-100 rounded">
-            Leaving Details
-          </Link>
-        </div>
+      <h3 className="text-lg font-bold text-gray-800 mb-4">
+        Employee Dashboard
+      </h3>
+
+      <div className="space-y-2">
+        <Link
+          to="/admin/employees/details"
+          className={`block px-4 py-2 rounded transition duration-300 ${
+            location.pathname === "/admin/employees/details"
+              ? "bg-gray-400 text-white font-semibold"
+              : "text-gray-700 hover:bg-blue-100"
+          }`}
+        >
+          Employee Details
+        </Link>
+
+        <Link
+          to="/admin/employees/salary"
+          className={`block px-4 py-2 rounded transition duration-300 ${
+            location.pathname === "/admin/employees/salary"
+              ? "bg-gray-400 text-white font-semibold"
+              : "text-gray-700 hover:bg-blue-100"
+          }`}
+        >
+          Salary Details
+        </Link>
+
+        <Link
+          to="/admin/employees/leaves"
+          className={`block px-4 py-2 rounded transition duration-300 ${
+            location.pathname === "/admin/employees/leaves"
+              ? "bg-gray-400 text-white font-semibold"
+              : "text-gray-700 hover:bg-blue-100"
+          }`}
+        >
+          Leave Details
+        </Link>
       </div>
+    </div>
+  
 
       {/* Main Content Area */}
       <div className="flex-1 p-6">

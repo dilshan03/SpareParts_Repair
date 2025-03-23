@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -13,6 +14,76 @@ const transporter = nodemailer.createTransport({
         pass: process.env.PASWD,
     }
 });
+
+export async function requestOtp(req, res) {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });  
+        }
+
+        const otp = crypto.randomInt(100000, 999999).toString(); // Generate 6-digit OTP
+        const otpExpires = Date.now() + 10 * 60 * 1000; // Expires in 10 minutes
+
+        user.otp = otp;
+        user.otpExpires = otpExpires;
+        await user.save();
+
+        // Send OTP via email
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Your OTP Code",
+            text: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        return res.json({ message: "OTP sent successfully" });
+
+    } catch (error) {
+        return res.status(500).json({ error: "Failed to send OTP" });
+    }
+}
+
+export async function verifyOtp(req, res) {
+    try {
+        const { email, otp } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
+            return res.status(400).json({ error: "Invalid or expired OTP" });
+        }
+
+        user.otp = null; // Clear OTP after successful verification
+        user.otpExpires = null;
+        await user.save();
+
+        return res.json({ message: "OTP verified successfully" });
+    } catch (error) {
+        return res.status(500).json({ error: "OTP verification failed" });
+    }
+}
+
+export async function resetPassword(req, res) {
+    try {
+        const { email, newPassword } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        user.password = bcrypt.hashSync(newPassword, 10);
+        await user.save();
+
+        return res.json({ message: "Password reset successfully" });
+    } catch (error) {
+        return res.status(500).json({ error: "Failed to reset password" });
+    }
+}
 
 export async function createEmployee(req, res) {
     try {
@@ -163,62 +234,6 @@ export async function updateEmployee(req,res){
         return;
     }
 
-
-}
-
-export async function updateEmpPassword(req,res){
-    try{
-        if(isEmployee(req)){
-
-            const id = req.params.id;
-            const data = req.body;
-
-            data.password = bcrypt.hashSync(data.password, 10);
-
-            const foundId = await User.findOne({id : id});
-
-            if(!foundId){
-                res.json({
-                    message : "Employee not found"
-                })
-                return;
-            }
-            else if(foundId.email == req.user.email){
-
-                await User.updateOne({id : foundId.id}, {password : data.password});
-                res.json({
-                message : "Password has been updated"
-
-                })
-            }
-            else{
-
-                res.json({
-                    message : "Access denied"
-                })
-
-            }
-
-            
-        }
-        else{
-            res.status(403).json({
-                message : "You can not perform this action"
-            })
-            return;
-        }
-
-
-    }catch{
-        res.status(500).json({
-            message : "Password not updated"
-        })
-
-    }
-    
-   
-
-    
 
 }
 

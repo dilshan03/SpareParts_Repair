@@ -29,7 +29,15 @@ app.use(bodyParser.json());
 
 app.use((req,res,next)=>{
 
-    if(req.path === "/api/employees/login"){
+    const publicRoutes = [
+        "/api/employees/login",
+        "/api/employees/request-otp",
+        "/api/employees/verify-otp",
+        "/api/employees/reset-password"
+    ];
+    
+    if (publicRoutes.includes(req.originalUrl)) {
+        console.log(`Bypassing auth for: ${req.originalUrl}`);
         return next();
     }
 

@@ -1,103 +1,91 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
-export default function LeaveRequest({ user }) {
-  const [leave, setLeave] = useState({
-    id: "",
-    email: user.email,
-    name: `${user.firstName} ${user.lastName}`,
-    startDate: "",
-    endDate: "",
-    reason: "",
-    status: "Pending",
-  });
-  const [existingLeave, setExistingLeave] = useState(null);
+export default function LeaveRequest() {
+  const location = useLocation();
+  
+  // Employee details from route state
+  const empId = location?.state?.id || "";
+  const email = location?.state?.email || "";
+  const firstName = location?.state?.firstName || "";
+  const lastName = location?.state?.lastName || "";
 
+  // Leave Request State
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [reason, setReason] = useState("");
+  const [status, setStatus] = useState("Pending");
+  const [leaveRequests, setLeaveRequests] = useState([]); // Store leave request data
+
+  // Fetch employee leave requests from the database
   useEffect(() => {
-    axios.get("http://localhost:5000/api/leaves").then((res) => {
-      const userLeave = res.data.find((l) => l.email === user.email);
-      if (userLeave) setExistingLeave(userLeave);
-    });
-  }, [user.email]);
+    const fetchLeaveRequests = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/leave/${empId}`);
+        setLeaveRequests(response.data);
+      } catch (error) {
+        toast.error("Error fetching leave requests");
+      }
+    };
 
-  const handleChange = (e) => {
-    setLeave({ ...leave, [e.target.name]: e.target.value });
-  };
+    if (empId) fetchLeaveRequests();
+  }, [empId]);
 
-  const handleSubmit = (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post("http://localhost:5000/api/leaves", leave)
-      .then(() => alert("Leave request submitted successfully"))
-      .catch(() => alert("Error submitting leave request"));
-  };
 
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    axios
-      .put(`http://localhost:5000/api/leaves/${existingLeave.id}`, {
-        startDate: leave.startDate,
-        endDate: leave.endDate,
-        reason: leave.reason,
-      })
-      .then(() => alert("Leave request updated successfully"))
-      .catch(() => alert("Error updating leave request"));
+    const leaveData = {
+      id: empId,
+      email,
+      name: `${firstName} ${lastName}`,
+      startDate,
+      endDate,
+      reason,
+      status,
+    };
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/leave", leaveData);
+      toast.success(res.data.message);
+      setLeaveRequests([...leaveRequests, leaveData]); // Update UI after submission
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to submit leave request");
+    }
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6">
-        {existingLeave ? "Update Leave Request" : "Request Leave"}
-      </h2>
-      <form
-        onSubmit={existingLeave ? handleUpdate : handleSubmit}
-        className="bg-white p-6 shadow-md rounded"
-      >
-        {!existingLeave && (
-          <>
-            <label className="block mb-2">ID:</label>
-            <input
-              type="text"
-              name="id"
-              value={leave.id}
-              onChange={handleChange}
-              className="border p-2 w-full mb-4"
-            />
-          </>
-        )}
+    <div className="max-w-2xl mx-auto p-6 bg-gray-100 shadow-md rounded-lg">
+      <h2 className="text-2xl font-semibold mb-4">Leave Request</h2>
 
-        <label className="block mb-2">Start Date:</label>
-        <input
-          type="date"
-          name="startDate"
-          value={leave.startDate}
-          onChange={handleChange}
-          className="border p-2 w-full mb-4"
-        />
+      {/* Display Existing Leave Requests */}
+      {leaveRequests.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-lg font-medium">Previous Leave Requests</h3>
+          <ul className="border p-3 rounded bg-white">
+            {leaveRequests.map((leave, index) => (
+              <li key={index} className="border-b p-2">
+                <strong>{leave.startDate} to {leave.endDate}</strong> - {leave.reason} 
+                <span className={`ml-2 text-sm ${leave.status === 'Approved' ? 'text-green-500' : 'text-red-500'}`}>
+                  {leave.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        <label className="block mb-2">End Date:</label>
-        <input
-          type="date"
-          name="endDate"
-          value={leave.endDate}
-          onChange={handleChange}
-          className="border p-2 w-full mb-4"
-        />
-
-        <label className="block mb-2">Reason:</label>
-        <textarea
-          name="reason"
-          value={leave.reason}
-          onChange={handleChange}
-          className="border p-2 w-full mb-4"
-        />
-
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          {existingLeave ? "Update Leave Request" : "Submit Leave Request"}
-        </button>
+      {/* Leave Request Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="text" value={email} disabled className="p-2 w-full border rounded bg-gray-200" />
+        <input type="text" value={`${firstName} ${lastName}`} disabled className="p-2 w-full border rounded bg-gray-200" />
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="p-2 w-full border rounded" required />
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="p-2 w-full border rounded" required />
+        <textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason for leave" className="p-2 w-full border rounded" required></textarea>
+        <input type="text" value={status} disabled className="p-2 w-full border rounded bg-gray-200" />
+        <button type="submit" className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">Submit Leave Request</button>
       </form>
     </div>
   );

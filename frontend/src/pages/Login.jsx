@@ -26,13 +26,10 @@ export default function Login() {
             // Store token and set it for future requests
             localStorage.setItem("token", res.data.token);
            
-            
-            
-
             if (user.role == "Admin") {
                 navigate("/admin/");
-            } else{
-                navigate("/employeeProfile");
+            } else if(user.role !== "Admin"){
+                navigate("/employeeProfile/", { state: user });
             }
         })
         .catch((error) => {
@@ -75,9 +72,13 @@ export default function Login() {
                         />
                     </div>
 
+                    <p className="text-sm text-blue-500 text-center mt-2 cursor-pointer" onClick={() => navigate("/api/reset-password")}>
+                        Forgot Password?
+                    </p>
+
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+                        className="w-full bg-blue-500 text-white m-2 py-2 rounded hover:bg-blue-600 transition duration-200"
                     >
                         Login
                     </button>
