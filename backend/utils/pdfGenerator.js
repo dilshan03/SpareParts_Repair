@@ -7,6 +7,11 @@ const generatePDF = (quotation) => {
     doc.on('data', buffers.push.bind(buffers));
     doc.on('end', () => resolve(Buffer.concat(buffers)));
 
+    // Add Logo
+    const logoPath = "images/logo.jpg"; // Adjust the path based on your project structure
+    doc.image(logoPath, 50, 50, { width: 100 });
+
+
     // Add Letterhead
     doc.fontSize(20).text("Cosmo Exports Lanka (PVT) LTD", 50, 120, { align: "center" });
     doc.fontSize(12).text("496/1, Naduhena, Meegoda, Sri Lanka", { align: "center" });

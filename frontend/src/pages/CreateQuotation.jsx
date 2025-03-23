@@ -19,6 +19,12 @@ const CreateQuotation = () => {
   const [quotationId, setQuotationId] = useState(null); // Store the created quotation ID
   const navigate = useNavigate(); // For navigation
 
+  // Validation function for vehicle number
+  const validateVehicleNumber = (value) => {
+    const vehicleNumberRegex = /^([A-Za-z0-9]{2,3}-\d{4}|[A-Za-z0-9]{1,2} SRI \d{4})$/; // Updated regex
+    return vehicleNumberRegex.test(value);
+  };
+
   // Calculate total amount whenever items, repairs, or discount changes
   useEffect(() => {
     const itemsTotal = formData.items.reduce((sum, item) => {
@@ -39,23 +45,52 @@ const CreateQuotation = () => {
   // Handle input changes for customer name, email, vehicle number, and discount
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "discount" && Number(value) < 0) return; // Prevent negative discount
+
     setFormData({ ...formData, [name]: value });
+  };
+
+  // Handle blur event for vehicle number validation
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "vehicleNumber" && value && !validateVehicleNumber(value)) {
+      alert("Invalid vehicle number format. Use format: XX-1234, XXX-1234, XX SRI 1234, or X SRI 1234");
+      setFormData((prevData) => ({ ...prevData, vehicleNumber: '' })); // Clear the field if invalid
+    }
   };
 
   // Handle changes for items
   const handleItemChange = (index, e) => {
     const { name, value } = e.target;
-    const newItems = [...formData.items];
-    newItems[index][name] = name === 'quantity' || name === 'price' ? Number(value) : value;
-    setFormData({ ...formData, items: newItems });
+    const numValue = Number(value);
+
+    if (name === 'itemName') {
+      const newItems = [...formData.items];
+      newItems[index][name] = value; // Handle item name as string
+      setFormData({ ...formData, items: newItems });
+    } else if (numValue >= 0) {
+      const newItems = [...formData.items];
+      newItems[index][name] = numValue;
+      setFormData({ ...formData, items: newItems });
+    }
   };
 
   // Handle changes for repairs
   const handleRepairChange = (index, e) => {
     const { name, value } = e.target;
-    const newRepairs = [...formData.repairs];
-    newRepairs[index][name] = name === 'price' ? Number(value) : value;
-    setFormData({ ...formData, repairs: newRepairs });
+    const numValue = Number(value);
+
+    if (name === 'repairType') {
+      const newRepairs = [...formData.repairs];
+      newRepairs[index][name] = value; // Handle repair type as string
+      setFormData({ ...formData, repairs: newRepairs });
+    } else if (numValue >= 0) {
+      const newRepairs = [...formData.repairs];
+      newRepairs[index][name] = numValue;
+      setFormData({ ...formData, repairs: newRepairs });
+    }
   };
 
   // Add a new item field
@@ -93,18 +128,8 @@ const CreateQuotation = () => {
       const response = await axios.post('http://localhost:5000/api/quotations', formData);
       setQuotationId(response.data._id); // Store the quotation ID
       alert('Quotation created successfully');
-      // Reset form after submission
-      setFormData({
-        customerName: '',
-        customerEmail: '',
-        vehicleNumber: '',
-        items: [{ itemName: '', quantity: 0, price: 0 }],
-        repairs: [{ repairType: '', price: 0 }],
-        discount: 0,
-        totalAmount: 0,
-      });
     } catch (err) {
-      console.error('Error creating quotation:', err.response?.data || err.message); // Log the error
+      console.error('Error creating quotation:', err.response?.data || err.message);
       alert('Error creating quotation: ' + (err.response?.data?.error || err.message));
     }
   };
@@ -118,8 +143,22 @@ const CreateQuotation = () => {
     try {
       await axios.post(`http://localhost:5000/api/quotations/send-email/${quotationId}`);
       alert('Email sent successfully');
+
+      // Reset the form only after the email is sent
+      setFormData({
+        customerName: '',
+        customerEmail: '',
+        vehicleNumber: '',
+        items: [{ itemName: '', quantity: 0, price: 0 }],
+        repairs: [{ repairType: '', price: 0 }],
+        discount: 0,
+        totalAmount: 0,
+      });
+
+      // Reset quotation ID after email is sent
+      setQuotationId(null);
     } catch (err) {
-      console.error('Error sending email:', err.response?.data || err.message); // Log the error
+      console.error('Error sending email:', err.response?.data || err.message);
       alert('Error sending email: ' + (err.response?.data?.error || err.message));
     }
   };
@@ -162,6 +201,7 @@ const CreateQuotation = () => {
             name="vehicleNumber"
             value={formData.vehicleNumber}
             onChange={handleInputChange}
+            onBlur={handleBlur} // Add onBlur for validation
             fullWidth
             required
           />

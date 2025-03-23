@@ -21,6 +21,7 @@ exports.createQuotation = async (req, res) => {
       repairs,
       discount,
       totalAmount,
+      status: 'pending', // Set initial status to 'pending'
     });
 
     // Save to database
@@ -113,5 +114,36 @@ exports.sendQuotationEmail = async (req, res) => {
   } catch (err) {
     console.error('Error sending email:', err); // Log the error
     res.status(500).json({ error: err.message });
+  }
+};
+
+// Update status of a quotation (Pending -> Accepted/Rejected)
+exports.updateQuotationStatus = async (req, res) => {
+  const { id } = req.params; // Get the quotation ID from the URL parameters
+  const { status } = req.body; // Get the status from the request body
+
+  // Validate that the status is either "Accepted" or "Rejected"
+  if (!['Accepted', 'Rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status. Status must be "Accepted" or "Rejected".' });
+  }
+
+  try {
+    // Find the quotation by ID and update its status
+    const updatedQuotation = await Quotation.findByIdAndUpdate(
+      id,
+      { status }, // Set the new status
+      { new: true } // Return the updated document
+    );
+
+    // If quotation is not found, return an error
+    if (!updatedQuotation) {
+      return res.status(404).json({ message: 'Quotation not found.' });
+    }
+
+    // Return the updated quotation
+    res.status(200).json(updatedQuotation);
+  } catch (err) {
+    console.error('Error updating quotation status:', err); // Log the error
+    res.status(500).json({ message: 'Server error while updating status.' });
   }
 };
