@@ -7,7 +7,8 @@ const SparePartSchema = new mongoose.Schema({
     quantity: { type: Number, required: true, min: 0 },
     price: { type: Number, required: true, min: 0 },
     condition: { type: String, required: true, enum: ["New", "Used", "Refurbished"] },
-    category: { type: String, required: true }
+    category: { type: String, required: true },
+    reorderLevel: { type: Number, required: true, min: 0 } // New field for reorder level
 }, { timestamps: true });
 
 const SparePart = mongoose.model("SparePart", SparePartSchema);

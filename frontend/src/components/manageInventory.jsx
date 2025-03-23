@@ -62,16 +62,18 @@ const ManageInventory = () => {
                 <th>Name</th>
                 <th>Category</th>
                 <th>Price</th>
+                <th>Quantity</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {spareParts.map((part) => (
                 <tr key={part._id}>
-                  <td><img src={`/${part.picture}`} alt={part.name} className="img-thumbnail" style={{ width: '50px', height: '50px' }} /></td>
+                  <td><img src={`http://localhost:5000/uploads/${part.picture}`} alt={part.name} className="img-thumbnail" style={{ width: '50px', height: '50px' }} /></td>
                   <td>{part.name}</td>
                   <td>{part.category}</td>
                   <td>${part.price}</td>
+                  <td>{part.quantity}</td>
                   <td>
                     <Link to={`/update/${part._id}`} className="btn btn-sm btn-warning me-2">Edit</Link>
                     <button onClick={() => handleDelete(part._id)} className="btn btn-sm btn-danger">Delete</button>

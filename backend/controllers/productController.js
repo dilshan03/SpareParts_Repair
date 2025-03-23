@@ -1,4 +1,5 @@
 import SparePart from "../models/Product.js";
+import nodemailer from 'nodemailer'; // Import nodemailer
 
 // Add a new spare part with image upload
 export const addSparePart = async (req, res) => {
@@ -21,18 +22,16 @@ export const addSparePart = async (req, res) => {
     }
 };
 
-// Get all spare parts with optional filtering by category & price range
+
+// Get all spare parts with reorder level notification
 export const getAllSpareParts = async (req, res) => {
     try {
-        let filter = {};
-        if (req.query.category) filter.category = req.query.category;
-        if (req.query.minPrice || req.query.maxPrice) {
-            filter.price = {};
-            if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
-            if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice);
-        }
-        const spareParts = await SparePart.find(filter);
-        res.status(200).json(spareParts);
+        const spareParts = await SparePart.find();
+        const sparePartsWithAlerts = spareParts.map(part => ({
+            ...part._doc,
+            reorderAlert: part.quantity <= part.reorderLevel ? "This item has reached the reorder level." : null
+        }));
+        res.status(200).json(sparePartsWithAlerts);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -50,10 +49,20 @@ export const getSparePartById = async (req, res) => {
 };
 
 // Update a spare part by ID
+// Update spare part quantity and check reorder level
 export const updateSparePart = async (req, res) => {
     try {
         const updatedPart = await SparePart.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedPart) return res.status(404).json({ message: "Spare part not found" });
+
+        if (!updatedPart) {
+            return res.status(404).json({ message: "Spare part not found" });
+        }
+
+        // Check if the stock is below reorder level
+        if (updatedPart.quantity <= updatedPart.reorderLevel) {
+            await sendReorderEmail(updatedPart);
+        }
+
         res.status(200).json(updatedPart);
     } catch (error) {
         res.status(500).json({ error: error.message });
