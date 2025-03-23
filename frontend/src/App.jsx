@@ -3,13 +3,18 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import RepairRequestList from './Components/RepairRequestList';
+// import RepairRequestList from './Components/RepairRequestList';
 import RepairRequestForm from './Components/RepairRequestFrom';
-import RepairRequestFromUpdate from './Components/RepairRequestFromUpdate';
+// import RepairRequestFromUpdate from './Components/RepairRequestFromUpdate';
+// import RepairTable from './Components/Repair/RepairTable';
+// import JobCardCreate from './Components/Repair/JobCardCreate';
+// import JobCardList from './Components/Repair/JobCardList';
+import RepaiTTTTTT from './Components/Repair/RepaiTTTTTT';
+import RepairDashBoard from './Pages/RepairDashBoard';
 // import JobCardALL from './Components/JobCardALL';
-// import JobCardCreateForm from './Components/JobCardCreateForm';
-// import RepairListAll from './Components/RepairListAll';
+// import JobCardCreateForm from './Components/JobCardCreateForm'; 
 // import JobCardUpdateMechanic from './Components/JobCardUpdateMechanic';
+
 
 function App() {
   const [count, setCount] = useState(0)
@@ -38,18 +43,22 @@ function App() {
     //   </p>
     // </>
     <BrowserRouter>
-      <Routes>
+      {/* <Routes>
         <Route path="/" element={<RepairRequestForm />} />
         <Route path="/success" element={<h1>Form Submitted Successfully</h1>} />
         <Route path='/repairRequest/:id' element={<RepairRequestFromUpdate/>} />
-      </Routes>
-      <RepairRequestList/>
+        <Route path="/jobcard-create/:repairId" element={<JobCardCreate/>} />
+      </Routes> */}
+      {/* <RepairRequestList/> */}
       <RepairRequestForm />
       {/* <JobCardALL/> */}
       {/* <JobCardCreateForm/> */}
-      {/* <RepairListAll/> */}
       {/* <JobCardUpdateMechanic/> */}
       {/* <RepairRequestFromUpdate/> */}
+      {/* <JobCardCreate/> */}
+      <RepaiTTTTTT/>
+      <RepairDashBoard/>
+    
     </BrowserRouter>
     
       

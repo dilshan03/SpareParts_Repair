@@ -9,9 +9,9 @@ import dotenv from "dotenv";
 import cors from "cors";//RY 
 import userRoute from "./route/UserRoute.js";//RY
 import RepairRequestFromRoute from "./routes/RepairRequestFromRoute.js";//RY
-import JobCardRoute from "./routes/JobCardRoutes.js";//RY
-import RepairRoute from "./routes/RepairRoutes.js"; // Import Repair Route
-
+// import JobCardRoute from "./routes/JobCardRoutes.js";//RY
+import RepairRoute from "./routes/RepairRoutes.js"; // Import Repair Rout
+import jobCardRoutes from "./routes/JobCardRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -40,12 +40,14 @@ app.use((req,res,next)=>{
     //############################//RY
      // Allow public access to login and repair request routes
      if (
-        req.path === "/api/employees/login" ||
-        req.path.startsWith("/repairRequest") ||
-        req.path.startsWith("/repairs") || // Allow access to repair routes
-        req.path.startsWith("/jobcards") // Allow access to job card routes
-        
+        req.path === "/api/employees/login" || //RY
+        req.path.startsWith("/repairRequest") || //RY
+        req.path.startsWith("/repairs") || // Allow access to repair routes //RY
+        req.path.startsWith("/jobCards") || // Allow access to job card routes //RY
+        req.path.startsWith("/employees")//RY
+
     ) {
+        console.log("Skipping authentication for:", req.path); 
         return next();
     }
     //##########################
@@ -90,9 +92,11 @@ conn.once("open",()=>{
 
 //use router
 app.use("/api/employees",userRoute); 
+app.use("/employees",userRoute); //RY
 app.use("/repairRequest",RepairRequestFromRoute);//RY
 app.use("/repairs", RepairRoute); // Repair routes RY
-app.use("/jobcards", JobCardRoute); // Job card routes RY
+app.use("/jobCards", jobCardRoutes); // Job card routes RY 
+
 
 //start server
 app.listen(5000,()=>{

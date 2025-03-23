@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
@@ -64,7 +63,23 @@ const userSchema = new Schema({
         type: String,
         required: true,
         default: "Available"
-    }
+    },
+
+    otp: {
+        default:0,
+        type: String,
+    },
+
+    otpExpires: {
+        default:"0",
+        type: Date,
+    },
+
+    profilepicture: {
+        type : String,
+        default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKaiKiPcLJj7ufrj6M2KaPwyCT4lDSFA5oog&s"
+
+    },
 });
 
 const User = mongoose.model("employees", userSchema);
