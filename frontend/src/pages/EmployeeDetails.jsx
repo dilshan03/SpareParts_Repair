@@ -57,17 +57,17 @@ export default function EmployeeDetails() {
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-blue-500 text-white">
-              <th className="p-3">Employee ID</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Email</th>
-              <th className="p-3">Age</th>
-              <th className="p-3">Salary</th>
-              <th className="p-3">Address</th>
-              <th className="p-3">Phone</th>
-              <th className="p-3">Role</th>
-              <th className="p-3">Type</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
+              <th className="p-4">Employee ID</th>
+              <th className="p-4">Name</th>
+              <th className="p-4">Email</th>
+              <th className="p-4">Age</th>
+              <th className="p-4">Salary</th>
+              <th className="p-4">Address</th>
+              <th className="p-4">Phone</th>
+              <th className="p-4">Role</th>
+              <th className="p-4">Type</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Actions</th>
             </tr>
           </thead>
           <tbody>

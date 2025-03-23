@@ -1,34 +1,94 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import logo from '../assets/logo.jpg'; 
 
 export default function SalaryDetails() {
     
     const [employees, setEmployees] = useState([]);
-    const [employeeLoad,setEmployeesLoad] = useState(false);
+    const [employeeLoad, setEmployeesLoad] = useState(false);
     const navigate = useNavigate();
         
     useEffect(() => {
-            
-        if(!employeeLoad){
-            
-    
-          const token = localStorage.getItem("token");
-    
-          axios.get( "http://Localhost:5000/api/salary", { headers: { Authorization: "Bearer " + token } })
-    
-            .then((res) => {
-              console.log(res.data);
-              setEmployees(res.data);
-              setEmployeesLoad(true);
-            })
-            .catch((er) => {
-              console.log(er);
-            });
-        }  
-    
-    },[employeeLoad]);
+        if (!employeeLoad) {
+            const token = localStorage.getItem("token");
 
+            axios.get("http://localhost:5000/api/salary", { headers: { Authorization: "Bearer " + token } })
+                .then((res) => {
+                    console.log(res.data);
+                    setEmployees(res.data);
+                    setEmployeesLoad(true);
+                })
+                .catch((er) => {
+                    console.log(er);
+                });
+        }  
+    }, [employeeLoad]);
+
+    // Function to generate PDF
+    const downloadPDF = () => {
+
+        const doc = new jsPDF();
+        const img = new Image();
+        img.src = logo;
+
+        img.onload = function () {
+            // Add company logo
+            doc.addImage(img, 'JPG', 15, 10, 30, 30); // Adjust position & size
+
+            // Add company details
+            doc.setFontSize(16);
+            doc.text("Cosmo Exports Lanka (PVT) LTD", 60, 20);
+            doc.setFontSize(10);
+            doc.text("496/1, Naduhena, Meegoda, Sri Lanka", 60, 27);
+            doc.text("Phone: +94 77 086 4011  |  +94 11 275 2373", 60, 33);
+            doc.text("Email: cosmoexportslanka@gmail.com", 60, 39);
+
+            // Report title
+            doc.setFontSize(14);
+            doc.text("Salary Details Report", 14, 55);
+            doc.setFontSize(12);
+
+            // Table Headers
+            const headers = [
+                ["Employee ID", "Basic Salary", "Double OT Hours", "OT Hours", "OT Amount", "EPF 8%", "EPF 12%", "ETF 3%", "Net Salary"]
+            ];
+
+            // Table Data
+            const data = employees.map(emp => [
+                emp.employeeId,
+                `LKR ${emp.basicSalary}`,
+                emp.doubleOtHours,
+                emp.otHours,
+                `LKR ${emp.otPay}`,
+                `LKR ${emp.epfEmployee}`,
+                `LKR ${emp.epfEmployer}`,
+                `LKR ${emp.etfEmployer}`,
+                `LKR ${emp.netSalary}`
+            ]);
+
+            // Add Table
+            autoTable(doc, {
+                head: headers,
+                body: data,
+                startY: 65,
+                theme: "striped",
+                styles: { fontSize: 10, cellPadding: 3 },
+                headStyles: { fillColor: [44, 62, 80], textColor: [255, 255, 255] }
+            });
+
+            // Footer - Authorized Signature
+            doc.text("Authorized Signature:", 150, doc.internal.pageSize.height - 30);
+            doc.line(150, doc.internal.pageSize.height - 28, 200, doc.internal.pageSize.height - 28); // Signature line
+
+            // Save PDF
+            doc.save("Salary_Details_Report.pdf");
+        };
+
+        
+    };
 
     return (
         <div className="p-6">
@@ -60,57 +120,27 @@ export default function SalaryDetails() {
                                 <td className="p-2">{emp.epfEmployer}</td>
                                 <td className="p-2">{emp.etfEmployer}</td>
                                 <td className="p-2">LKR {emp.netSalary}</td>
-                                <td className="p-2">
-                                    {/*<button
-                                        onClick={() => handleOpenModal(emp)}
-                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                                    >
-                                        Generate Salary
-                                    </button>*/}
-                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
 
-            {/* Modal 
-            {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-xl font-bold mb-4">Generate Salary</h2>
-                        <p>Employee: {selectedEmployee.firstName} {selectedEmployee.lastName}</p>
-                        <p>Basic Salary: LKR {selectedEmployee.salary}</p>
-                        <label className="block mt-2">OT Hours:</label>
-                        <input
-                            type="number"
-                            value={otHours}
-                            onChange={(e) => setOtHours(Number(e.target.value))}
-                            className="w-full border rounded p-2"
-                        />
-                        <label className="block mt-2">Double OT Hours:</label>
-                        <input
-                            type="number"
-                            value={doubleOtHours}
-                            onChange={(e) => setDoubleOtHours(Number(e.target.value))}
-                            className="w-full border rounded p-2"
-                        />
-                        <div className="mt-4 flex justify-end">
-                            <button onClick={handleCloseModal} className="mr-2 px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
-                            <button onClick={handleGenerateSalary} className="px-4 py-2 bg-blue-500 text-white rounded">Generate</button>
-                        </div>
-                    </div>
-                </div>
-            )}*/}
+            <div className="flex space-x-4 mt-4">
+                <button
+                    className="bg-green-500 text-white px-4 py-1 rounded"
+                    onClick={() => navigate(`/admin/employees/salary/new`)}
+                >
+                    Generate Salary
+                </button>
 
-            <button
-                className="bg-green-500 text-white px-4 py-1 rounded m-2"
-                onClick={() => navigate(`/admin/employees/salary/new`)}
-            >Genarate Salary</button>
-                    
-                  
+                <button
+                    className="bg-red-500 text-white px-4 py-1 rounded"
+                    onClick={downloadPDF}
+                >
+                    Download PDF
+                </button>
+            </div>
         </div>
     );
 };
-
-
