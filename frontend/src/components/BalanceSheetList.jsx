@@ -1,4 +1,4 @@
-// src/components/BalanceSheetList.js
+/*// src/components/BalanceSheetList.js
 
 //import { fetchBalanceSheets } from "../api/balanceSheet"; // import API call
 
@@ -58,3 +58,4 @@ const BalanceSheetList = () => {
 };
 
 export default BalanceSheetList;
+*/
