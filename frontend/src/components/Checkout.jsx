@@ -46,7 +46,7 @@ const Checkout = () => {
         {/* Inventory Logo */}
         <div className="text-center mb-5">
           <img
-            src="/images/inventory-logo.png"
+            src="/images/inventory-logo.jpg"
             alt="Inventory Logo"
             style={{ width: "80%", height: "auto" }}
           />

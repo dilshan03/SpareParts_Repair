@@ -45,7 +45,7 @@ const UpdateProduct = () => {
             <div className="bg-primary text-white p-4 d-flex flex-column" style={{ width: '250px', height: '100vh', position: 'fixed', top: 0, left: 0 }}>
                 {/* Inventory Logo */}
                 <div className="text-center mb-5">
-                    <img src="/images/inventory-logo.png" alt="Inventory Logo" style={{ width: '80%', height: 'auto' }} />
+                    <img src="/images/inventory-logo.jpg" alt="Inventory Logo" style={{ width: '80%', height: 'auto' }} />
                 </div>
 
                 {/* Navigation Menu */}

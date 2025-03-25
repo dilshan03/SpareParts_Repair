@@ -14,6 +14,7 @@ const InventoryHome = () => {
           <Link to="/addProducts" className="btn btn-primary btn-lg"> Add Products</Link>
           <Link to="/updateInventory" className="btn btn-primary btn-lg"> Manage Inventory</Link>
           <Link to="/reports" className="btn btn-primary btn-lg"> Reports</Link>
+          <Link to="/viewAllProducts" className="btn btn-primary btn-lg">Customer View </Link>
           <p></p>
           <Link to="/adminDashboard" className="btn btn-warning btn-lg"> Back to Admin Dashboard </Link>
         </div>

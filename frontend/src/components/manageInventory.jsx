@@ -32,17 +32,18 @@ const ManageInventory = () => {
 
 {/* Inventory Logo */}
 <div className="text-center mb-5">
-  <img src="/images/inventory-logo.png" alt="Inventory Logo" style={{ width: '80%', height: 'auto' }} />
+  <img src="/images/inventory-logo.jpg" alt="Inventory Logo" style={{ width: '80%', height: 'auto' }} />
 </div>
 
 {/* Navigation Menu */}
 <ul className="list-unstyled flex-grow-1">
-  <li className="mb-4"><a href="/addProducts" className="text-white text-decoration-none fs-5">Add Inventory</a></li>
-  <li className="mb-4"><a href="/manageInventory" className="text-white text-decoration-none fs-5">Manage Inventory</a></li>
-  <li className="mb-4"><a href="/viewInventory" className="text-white text-decoration-none fs-5">View Inventory</a></li>
-  <li className="mb-4"><a href="/reports" className="text-white text-decoration-none fs-5">Inventory Reports</a></li>
-  
-</ul>
+          <li className="mb-4"><a href="/addProducts" className="text-white text-decoration-none fs-5">Add Inventory</a></li>
+          <li className="mb-4"><a href="/manageInventory" className="text-white text-decoration-none fs-5">Manage Inventory</a></li>
+          <li className="mb-4"><a href="/viewInventory" className="text-white text-decoration-none fs-5">View Inventory</a></li>
+          <li className="mb-4"><a href="/reports" className="text-white text-decoration-none fs-5">Inventory Reports</a></li>
+          <li className="mb-4"><a href="/inventoryHome" className="text-white text-decoration-none fs-5">Main Inventory</a></li>
+          <li className="mb-4"><a href="/viewAllProducts" className="text-white text-decoration-none fs-5">Customer View</a></li>
+        </ul>
 
 <div>
   <Link to="/adminDashboard" className="btn btn-warning btn-lg"> Back to Admin Dashboard </Link>

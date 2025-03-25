@@ -31,7 +31,7 @@ const ViewInventory = () => {
 
 {/* Inventory Logo */}
 <div className="text-center mb-5">
-  <img src="/images/inventory-logo.png" alt="Inventory Logo" style={{ width: '80%', height: 'auto' }} />
+  <img src="/images/inventory-logo.jpg" alt="Inventory Logo" style={{ width: '80%', height: 'auto' }} />
 </div>
 
 {/* Navigation Menu */}
@@ -41,6 +41,7 @@ const ViewInventory = () => {
   <li className="mb-4"><a href="/viewInventory" className="text-white text-decoration-none fs-5">View Inventory</a></li>
   <li className="mb-4"><a href="/reports" className="text-white text-decoration-none fs-5">Inventory Reports</a></li>
   <li className="mb-4"><a href="/inventoryHome" className="text-white text-decoration-none fs-5">Main Inventory</a></li>
+  <li className="mb-4"><a href="/viewAllProducts" className="text-white text-decoration-none fs-5">Customer View</a></li>
 </ul>
 
 {/* Background Image at Bottom */}
