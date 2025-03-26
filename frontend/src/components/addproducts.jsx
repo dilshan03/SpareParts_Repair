@@ -1,5 +1,3 @@
-//addProducts.jsx
-
 import { useState } from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -20,7 +18,7 @@ const AddProducts = () => {
   const [messageType, setMessageType] = useState("");
 
   const handleChange = (e) => {
-   setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
@@ -29,14 +27,20 @@ const AddProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
 
-    // Append form fields
+    // Validate product name: only letters and spaces allowed
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(formData.name)) {
+      setMessage("Product name must contain only letters and spaces.");
+      setMessageType("error");
+      return;
+    }
+
+    const data = new FormData();
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
 
-    // Append image file
     if (picture) {
       data.append("picture", picture);
     }
